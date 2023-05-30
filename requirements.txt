@@ -1,0 +1,12 @@
+pytorch
+opencv
+numpy
+pyquaternion
+shapely
+lmdb
+nuscenes-devkit
+pillow
+matplotlib
+torchvision
+descartes
+scipy

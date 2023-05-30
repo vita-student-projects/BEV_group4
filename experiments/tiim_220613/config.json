@@ -1,0 +1,1 @@
+{"root": "/Users/gloriamellinand/Downloads/translating-images-into-maps-main/experiments", "gpu": [0], "num_gpu": 0, "workers": 4, "val_interval": 1, "print_iter": 5, "vis_iter": 20}
