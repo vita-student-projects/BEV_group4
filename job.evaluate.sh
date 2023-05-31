@@ -1,20 +1,23 @@
 #!/bin/bash
 
-#SBATCH -J val_job
-#SBATCH -p gpu
-#SBATCH -A r00068
-#SBATCH -o job_logs/filename_%j.txt
-#SBATCH -e job_logs/filename_%j.err
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=deduggi@iu.edu
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --gpus-per-node v100:4
-#SBATCH --time=07:00:00
-#SBATCH --mem=55gb
+#SBATCH -J dlav-bev-evaluation
+#SBATCH --chdir /home/delfosse/venvs/dlav/dlav
+#SBATCH --nodes 1
+#SBATCH --ntasks 1
+#SBATCH --cpus-per-task 4
+#SBATCH --mem 32G
+#SBATCH --partition gpu
+#SBATCH --gres gpu:1
+#SBATCH --qos dlav
+#SBATCH --account civil-459-2023
+#SBATCH -o slurm.%j.out # STDOUT
+#SBATCH -e slurm.%j.err # STDERR
+#SBATCH --time 01:00:00
 
 #Load any modules that your program needs
-module load deeplearning/2.10.0
+module load gcc/8.4.0-cuda python/3.7.7 cuda/11.6.2
+source /home/delfosse/venvs/dlav/bin/activate
 
 #Run your program
-python inference.py --name "tiim_28k" --root="/N/slate/deduggi/nuScenes-trainval" --val-split="evaluation" --data-size=1 --batch-size=8 --accumulation-steps=1
+python inference.py --batch-size=1 --video-name="test1" --video-root="/Users/quentin/Downloads" --load-ckpt="checkpoint-epfl-epoch-0016-mini-False-iou-1.pth.gz"                  
+
