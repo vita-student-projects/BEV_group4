@@ -263,9 +263,9 @@ After the research phase, we implemented the $DIoU$ loss in the <code>bbox_overl
 
 This function is then used to compute multiscale $IoU$ and $DIoU$ in the <code>compute_multiscale_iou</code> function of the same file. For each class, the $DIoU$ or $IoU$ (in function of the <code>iou</code> input argument) is calculated over the batch size. The output of the function are a dictionary <code>iou_dict</code> containing the multiscale $IoU$ and class count values for each sample and scale, and per sample $IoU$.
 
-We then used these values in <code>train.py</code>, where the $IoU$ and $DIoU$ losses were computed as an evaluation metric and used in the evaluation runs once every <code>val-interval</code> epochs. These values were also used in <code>validation.py</code> where they were used to display the losses and $IoU$s on a validation batch.
+We then used these values in <code>train.py</code>, where the $IoU$ and $DIoU$ losses were computed as an evaluation metric and used in the evaluation runs once every <code>val-interval</code> epochs. These values were also used in <code>validation.py</code> where they were used to display the losses and $IoU$ s on a validation batch.
 
-We trained the model on the NuScenes dataset starting with the provided checkpoint <code>checkpoint-008.pth.gz</code>, once with the $DIoU$ loss function, and another time with the standard $IoU$ loss. This was done using SCITAS, EPFL's computing facility. 
+We trained the model on the NuScenes dataset starting with the provided checkpoint <code>checkpoint-008.pth.gz</code>, once with the $DIoU$ loss function, and another time with the standard $IoU$ loss as a reference. This was done using SCITAS, EPFL's computing facility. 
 
 Another contribution is the new format of visualization to distinguish classes better with all corresponding labels and IoU values. This was implemented in the <code>visualization.py</code> file.
 
@@ -275,7 +275,7 @@ Lastly, we worked to implement a mode that would take <code>.mp4</code> videos a
 
 ### Training and Validation results
 
-To have a preliminary idea of the training stratregy of this model, we first decided train it on the NuScenes mini datasets. Starting from <code>checkpoint-008.pth.gz</code>, we were able to train two models different in the IoU metric used (IoU for one and DIoU). The results obtained on a NuScenes mini batch after 10 epochs of training are presented in the table below.
+To have a preliminary idea of the training stratregy of this model, we first decided train it on the NuScenes mini datasets. Starting from <code>checkpoint-008.pth.gz</code>, we were able to train two models different in the IoU metric used (IoU for one and DIoU for the other). The results obtained on a NuScenes mini batch after 10 epochs of training are presented in the table below.
 
 <div>
 <p align="center">
@@ -296,7 +296,7 @@ After training our new models (with DIoU or IoU) from <code>checkpoint-008.pth.g
 </div>
 <br />
 
-Here, the IoU metric was use to validate the models. We can note that the accurary of the model trained with the DIoU metric exceeds the one trained with the standard $IoU$. Further, the pedestrian class is better represented after using the the $DIoU$ training, which tends to support our hypothesis that $DIoU$ is better to classify smaller objects in the image. Nevertheless, a more complete dataset is required to truly validate this statement. A table was therefore computed based on a batch of the NuScenes mini dataset to compare both models over a series of images. The results are presented below.
+Here, the $IoU$ metric was use to validate the models. We can note that the accurary of the model trained with the $DIoU$ metric exceeds the one trained with the standard $IoU$. Further, the pedestrian class is better represented after using the the $DIoU$ training, which tends to support our hypothesis that $DIoU$ is better at classifying smaller objects in the image. Nevertheless, a more complete dataset is required to truly validate this statement. A table was therefore computed based on a batch of the NuScenes mini dataset to compare both models over a series of images. The results are presented below.
 
 <div>
 <p align="center">
@@ -305,11 +305,11 @@ Here, the IoU metric was use to validate the models. We can note that the accura
 </div>
 <br />
 
-These results finally show a better performance of the $DIoU$ training over the $IoU$ one for small classes such as pedestrians, in both DIoU and IoU validation runs. The impact of the $DIoU$ training can further be observed on the $DIoU$ validation runs (last 2 lines of the table) as the difference between the performance of $DIoU$ trained network and the $IoU$ trained one is bigger than using the $IoU$ metric for validation.
+These results finally show a better performance of the $DIoU$ training over the $IoU$ one for small classes such as pedestrians, in both $DIoU$ and $IoU$ validation runs. The impact of the $DIoU$ training can further be observed on the $DIoU$ validation runs (last 2 lines of the table) as the difference between the performance of $DIoU$ trained network and the $IoU$ trained one is bigger than when using the $IoU$ metric for validation.
 
 ### Inference results
 
-Now that we have a trained model, we can use it to predict the BEV using any input images or videos. While our ambition was to implement our method within the course's final demo, the bird's eye view maps infered were unfortunately not sufficiently performant. The figure below shows the inference result on one of the test videos provided (see https://drive.google.com/drive/folders/16xf0AF9zgWAuK6Xyr5xK85t77hM3BwAv?usp=sharing). 
+Now that we have a trained model, we can use it to predict the BEV using any input images or videos. While our ambition was to implement our method within the course's final demo, the bird's eye view maps infered were unfortunately not sufficiently performant. The figure below shows the inference result on one of the test videos provided (see [test videos](https://drive.google.com/drive/folders/16xf0AF9zgWAuK6Xyr5xK85t77hM3BwAv?usp=sharing)). 
 
 <div>
 <p align="center">
@@ -318,16 +318,15 @@ Now that we have a trained model, we can use it to predict the BEV using any inp
 </div>
 <br />
 
-This lack of performance for the inference is believed to be due to the following paramaters:
+We believe this lack of performance for the inference is due to the following parameters:
 
-- First, the camera calibration parameters necessary to our model had to be taken from the NuScenes Mini dataset, supposing that a similar camera would be used for the images to be infered on.
-- Second, the camera orientation and positioning within the car instead of in front of it was not expected. As the image had to be cropped along its width, the scaling operations performed along the width to adapt to the input format of the model may have changed the geometry of the objects to be predicted beyond the performance of the model.
-
+- Since the camera calibration parameters, necessary to our model, were not provided with the video, we had to take these parameters from the NuScenes Mini dataset, supposing that a similar camera would be used for the images to be infered on.
+- Second, the camera orientation and positioning within the car instead of in front of it was not expected. As the image had to be cropped along its width, the scaling operations performed along this axis to adapt to the input format of the model may have changed the geometry of the objects to be predicted beyond the performance of the model.
 
 ## Project Evolution
 Although the passage from $IoU$ to $DIoU$ loss function has proven successful in better representing pedestrians and small objects with extreme aspect ratios, the accuracy should be higher if human lives are at stake. There are multiple interesting paths that could be explored to further increase the model's prediction accuracy. 
 
-One option is to implement $CIoU$ (Complete IoU) and train the model with this loss function. 
+One option is to implement $CIoU$ (Complete $IoU$) and train the model with this loss function. 
 ```math
 C_{IoU} = 1- IoU + {{\rho^2(b,b_{gt})} \over {c^2}} + \alpha V \arctan(\frac{w_{gt}}{h_{gt}})
 ```
@@ -343,9 +342,9 @@ V = \frac{4}{\pi^2}(\arctan(\frac{w_{gt}}{h_{gt}}) - \arctan(\frac{w}{h}))^2
 $w_{gt}$ and $w$ are the widths of the ground truth and prediction bounding boxes.
 $h_{gt}$ and $h$ are the heights of the ground truth and prediction bounding boxes.
 
-The CIoU is based on the DIoU and takes 3 geometric factors into account: Overlapping area (present in IoU and DIoU), distance (present in DIoU) and aspect ratio. Compared to DIoU, the additional penalty term for aspect ratio similarity between ground truth and predicted bounding boxes encourages similar proportions, thus helping in the accurate detection of small objects and extreme aspect ratios.
+The $CIoU$ is based on the $DIoU$ and takes 3 geometric factors into account: Overlapping area (present in $IoU$ and $DIoU$), distance (present in $DIoU$) and aspect ratio. Compared to $DIoU$, the additional penalty term for aspect ratio similarity between ground truth and predicted bounding boxes encourages similar proportions, thus helping in the accurate detection of small objects and extreme aspect ratios.
 
-Furthermore, according to research done by this paper [[2]](#2), regression error for CIoU degrades faster than the rest, and will converge to DIoU loss. 
+Furthermore, according to research done by this paper [[2]](#2), regression error for CIoU degrades faster than the rest, and will converge to $DIoU$ loss. 
 
 <div>
 <p align="center">
