@@ -37,7 +37,7 @@ To use the functions of this repository, the following command line arguments ma
 --video-name: name of the video file within the video root and without extension
 --savedir: directory to save experiments to
 --val-interval: number of epochs between validation runs
---root: 
+--root: directory of the repository
 --video-root: absolute directory to the video input
 --nusc-version: nuscenes version (either “v1.0-mini” or “v1.0-trainval” for the full US dataset)
 --train-split: training split (either “train_mini" or “train_roddick” for the full US dataset)
