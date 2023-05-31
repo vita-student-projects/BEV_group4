@@ -8,7 +8,7 @@ Please refer to the [repository's ReadMe](https://github.com/avishkarsaha/transl
 
 ## Using the code
 The first step is to create a folder named "translating-images-into-maps-main" and download all files into it.
-Then, due to large file size, the latest checkpoint of our training and the mini nuScenes dataset used for validation can be downloaded [from this Google Drive](https://drive.google.com/drive/folders/0ALp6UvHAP1hAUk9PVA). These folders should be added directly in the "translating-images-into-maps-main" directory. 
+Then, due to large file size, the latest checkpoints of our training and the mini nuScenes dataset used for validation can be downloaded [from this Google Drive](https://drive.google.com/drive/folders/0ALp6UvHAP1hAUk9PVA). These folders should be added directly in the "translating-images-into-maps-main" directory. 
 
 Below is the list of required libraries for this repo:
 ```pytorch
