@@ -9,7 +9,7 @@ Please refer to the repository's Read Me for dependencies and datasets to instal
 The first step is to create a folder named "translating-images-into-maps-main" and download all files into it.
 Then, due to large file size, the latest checkpoint of our training and the mini nuScenes dataset used for validation can be downloaded [from this Google Drive](https://drive.google.com/drive/folders/0ALp6UvHAP1hAUk9PVA). These folders should be added directly in the "translating-images-into-maps-main" directory. 
 
-Below is the list of the required libraries for this repo:
+Below is the list of required libraries for this repo:
 ```pytorch
 opencv
 numpy
@@ -57,7 +57,7 @@ The $DIoU$ (Distance IoU) loss function solves many of these issues.
 D_{IoU} = 1 - IoU + {{\rho^2(b,b_{gt})} \over {c^2}}
 ```
 <div>
-<img src="images/1_evaluation.png"></img>
+<img src="images/diou.webp" width="300"></img>
 </div>
 <br />
 
