@@ -139,7 +139,7 @@ To train locally on cpu:
 python3 train.py
 ```
 
-Make sure to adapt the script with your command line args
+Make sure to adapt the script with your command line args.
 
 
 ### Validation
@@ -156,7 +156,7 @@ To train locally on cpu:
 python3 validate.py
 ```
 
-Make sure to adapt the script with your command line args
+Make sure to adapt the script with your command line args.
 
 
 ### Inference
