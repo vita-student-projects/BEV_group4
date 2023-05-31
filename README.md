@@ -43,9 +43,9 @@ More information about our research can be found on the [Drive](https://drive.go
 ## Contribution
 As the poor detection of pedestrians seemed to be the most immediate issue with the current trained model, we aimed to improve the accuracy by looking into better suited loss functions, and training the new model on the nuScenes dataset. 
 
-The model we built upon was trained using an IoU loss function, which is scale-invariant and used for bounding box regression. IoU measures the overlap between the ground truth's and the model's prediction bounding boxes, without taking into account the localization accuracy. Therefore a high IoU does not imply correct localization. This also induces errors for small bounding box sizes (pedestrians, bikes) as they are more difficult to localize accurately.
+The model we built upon was trained using an $IoU$ loss function, which is scale-invariant and used for bounding box regression. IoU measures the overlap between the ground truth's and the model's prediction bounding boxes, without taking into account the localization accuracy. Therefore a high $IoU$ does not imply correct localization. This also induces errors for small bounding box sizes (pedestrians, bikes) as they are more difficult to localize accurately.
 
-Another issue with IoU is its poor detection of extreme aspect ratios, which can be found in pedestrians (length of the box is generally much higher than width).
+Another issue with $IoU$ is its poor detection of extreme aspect ratios, which can be found in pedestrians (length of the box is generally much higher than width).
 ```math
 L_{IoU} = 1-{{|B \cap B_{gt}|} \over {|B \cup B_{gt}|}}
 ```
@@ -57,12 +57,15 @@ The $DIoU$ (Distance IoU) loss function solves many of these issues.
 D_{IoU} = 1 - IoU + {{\rho^2(b,b_{gt})} \over {c^2}}
 ```
 <div>
-<img src="images/diou.webp" width="300"></img>
+<p align="center">
+<img src="images/diou.png" width="200"></img>
+</p>
 </div>
 <br />
 
 $\rho^2(b,b_{gt})$, or $d$ is the l2 distance between the centers of the ground truth and predicted bounding boxes.
-It uses l2 norm to minimize the distance between predicted and target boxes, and converges much faster than $IoU$, especially in non-overlapping cases. It also considers the horizontal and vertical orientations of the box, resulting in better detection of extreme aspect ratios (see image below).
+
+It uses l2 norm to minimize the distance between predicted and target boxes, and converges much faster than $IoU$, especially in non-overlapping cases[[1]](#1). It also considers the horizontal and vertical orientations of the box, resulting in better detection of extreme aspect ratios (see image below).
 
 
 
@@ -72,11 +75,7 @@ It uses l2 norm to minimize the distance between predicted and target boxes, and
 
 ## References
 <a id="1">[1]</a> 
-Saha, Avishkar and Mendez, Oscar and Russell, Chris and Bowden, Richard (2022). 
-Translating Images into Maps.
-2022 IEEE International Conference on Rbotics and Automation (ICRA)
+Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren (2020). 
+Distance-IoU Loss: Faster and Better Learning for Bounding Box Regression
+https://arxiv.org/pdf/1911.08287.pdf
 
-<a id="1">[1]</a> 
-Saha, Avishkar and Mendez, Oscar and Russell, Chris and Bowden, Richard (2021). 
-Enabling spatio-temporal aggregation in birds-eye-view vehicle estimation.
-2021 IEEE International Conference on Robotics and Automation (ICRA) (pages 5133-5139)
