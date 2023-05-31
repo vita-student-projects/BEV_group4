@@ -215,7 +215,7 @@ D_{IoU} = 1 - IoU + {{\rho^2(b,b_{gt})} \over {c^2}}
 </p>
 </div>
 <br />
-$b_{gt}$ is the center point of the ground truth bounding box while $b$ is the center point of the predicted bounding box.
+$b_{gt}$ is the center point of the ground truth bounding box while $b$ is the center point of the predicted bounding box. 
 $\rho^2(b,b_{gt})$, or $d$ is the l2 distance between the centers of the ground truth and predicted bounding boxes.
 
 It uses l2 norm to minimize the distance between predicted and target boxes, and converges much faster than $IoU$, especially in non-overlapping cases[[1]](#1). The penalty term linked to the distance between the bounding boxes makes the algorithm less sensitive to the box size, and increases accuracy of detection of smaller objects. 
