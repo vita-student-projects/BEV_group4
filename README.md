@@ -1,4 +1,4 @@
-# Evaluation of Translating Images into Maps Paper
+# From Monocular Camera Image to BEV - Improving Pedestrians Detection
 
 <div>
 <img src="images/image_to_bev_motivation.gif"></img>
