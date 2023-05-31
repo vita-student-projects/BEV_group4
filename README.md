@@ -317,7 +317,14 @@ Second, the camera orientation and positioning within the car instead of in fron
 ## Project Evolution
 Although the passage from $IoU$ to $DIoU$ loss function has proven successful in better representing pedestrians and small objects with extreme aspect ratios, the accuracy should be higher if human lives are at stake. There are multiple interesting paths that could be explored to further increase the model's prediction accuracy. 
 
-One option is to implement the CIoU (Complete IoU) and train the model with this loss function. 
+One option is to implement $CIoU$ (Complete IoU) and train the model with this loss function. 
+```math
+C_{IoU} = 1- IoU + {{\rho^2(b,b_{gt})} \over {c^2}} + \alpha V
+```
+The CIoU is based on the DIoU and takes 3 geometric factors into account: Overlapping area (present in IoU and DIoU), distance (present in DIoU) and aspect ratio. Compared to DIoU, the additional penalty term for aspect ratio similarity between ground truth and predicted bounding boxes encourages similar proportions, thus helping in the accurate detection of small objects and extreme aspect ratios.
+
+Furthermore, according to research done by this paper, regression error for CIoU degrades faster than the rest, and will converge to DIoU loss. 
+
 <div>
 <p align="center">
 <img src="images/evol.png" width="500"></img>
@@ -327,7 +334,7 @@ One option is to implement the CIoU (Complete IoU) and train the model with this
 
 Another option is to train on datasets that are rich in crowdy environments to have a better representation of pedestrians and bicycles. 
 
-Finally, to trully validate our hypotehsis, a validation run on the full NuScenes dataset could be conducted and the pedestrian IoUs of the two models could be compared.
+Finally, to truly validate our hypothesis, a validation run on the full NuScenes dataset could be conducted and the pedestrian IoUs of the two models could be compared.
 
 ## References
 <a id="1">[1]</a> 
