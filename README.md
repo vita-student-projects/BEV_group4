@@ -63,7 +63,7 @@ NuScenes Full US:
 
 As the NuScene mini and full datasets do not have the same image input format (lambda or pngs), some modifications need to be applied to the code to use on or the other.
 
-- Change <code>mini</code> argument to false to use the mini dataset as well as the args paths and splits in the <code>train.py</code>, <code>validation.py</code> and <code>evaluation.py</code> files.
+- Change <code>mini</code> argument to false to use the mini dataset as well as the args paths and splits in the <code>train.py</code>, <code>validation.py</code> and <code>inference.py</code> files.
 
 ```python
     data = nuScenesMaps(
