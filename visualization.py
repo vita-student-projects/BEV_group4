@@ -48,10 +48,6 @@ def color_components(labels, color_map=COLOR_MAP):
     Returns the colored image.
     """
     colors = np.zeros((labels.shape[0], labels.shape[1], 3), dtype=np.uint8)
-    # unique_labels = np.unique(labels)
-    # color_map = {l: np.random.choice(range(256), size=3) for l in unique_labels}  # assign random color to each label
-    # color_map[0] = np.array([255, 255, 255])  # white background
-
     n_rows, n_cols = labels.shape
     for i in range(n_rows):
         for j in range(n_cols):
@@ -124,10 +120,6 @@ def visualize_prediction(gt_image, cls_maps, pred, out_path=None, figsize=(15, 7
     ax = axs[1]
     ax.imshow(cls_maps_colors)
     ax.set_title('BEV - ground truth')
-    # legend_colors = [np.append(c / 255, 1) for c in COLOR_MAP.values()]
-    # patches = [mpatches.Patch(color=legend_colors[i], label=label)
-    #            for i, label in enumerate(color_map_labels.keys())]
-    # ax.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     ax.axis('off')
 
     ax = axs[2]
@@ -154,7 +146,6 @@ def visualize_prediction(gt_image, cls_maps, pred, out_path=None, figsize=(15, 7
 
 def main():
     args = parse_args(notebook=False)
-    # args.root = str(Path('./nuscenes_data/').resolve())
     init(args)
 
     train_data = nuScenesMaps(
