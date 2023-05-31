@@ -260,7 +260,6 @@ def validate(args, dataloader, model, epoch):
     )
 
     ms_ious_per_class = (
-        # (ms_cumsum_iou_per_class / (ms_count_per_class + 1e-6)).cpu().numpy()
         (ms_cumsum_iou_per_class.cpu() / (ms_count_per_class.cpu() + 1e-6)).cpu().numpy()
     )
     ms_mean_iou = ms_ious_per_class.mean(axis=1)
@@ -270,7 +269,6 @@ def validate(args, dataloader, model, epoch):
         [epoch_loss_per_class["s{}_loss_per_class".format(scale)] for scale in scales]
     )
     ms_loss_per_class = (
-        # (ms_cumsum_loss_per_class / (ms_count_per_class + 1)).cpu().numpy()
     (ms_cumsum_loss_per_class.cpu() / (ms_count_per_class.cpu() + 1)).cpu().numpy()
     )
     total_loss = ms_loss_per_class.mean(axis=1).sum()
@@ -365,12 +363,8 @@ def visualize_score(scores,  heatmaps, grid, image, iou, iou_dict, num_classes, 
     ax5.axis('off')
     cmap = mpl.cm.jet
     norm = mpl.colors.Normalize(vmin=0, vmax=num_classes-1)
-    # cb = mpl.colorbar.ColorbarBase(ax5, cmap=cmap, norm=norm, orientation='vertical')
-    # cb.set_label('Class Color Code')
 
     class_names = [args.pred_classes_nusc[i] for i in range(num_classes)]
-    # print("class_names :", class_names)
-    # handles = [mpl.patches.Patch(color=cmap(norm(i)), label=f"({iou_dict[i]:.2f}) {class_names[i]}") for i in range(num_classes)]
     handles = [mpl.patches.Patch(color=cmap(norm(i)), label="({:.2f}) {}".format(iou_dict[i], class_names[i])) for i in range(num_classes)]
     ax5.legend(handles=handles, loc='center', bbox_to_anchor=(0.5, 0.5))
 
@@ -802,13 +796,6 @@ def _make_experiment(args):
     with open(os.path.join(savedir, "config.json"), "w") as fp:
         json.dump(args.__dict__, fp)
 
-    # # Write config as a text summary
-    # summary.add_text(
-    #     "config",
-    #     "\n".join("{:12s} {}".format(k, v) for k, v in sorted(args.__dict__.items())),
-    # )
-    # summary.file_writer.flush()
-
     return None
 
 
@@ -918,14 +905,6 @@ def main():
 
     if args.pretrained_bem:
         pretrained_model_dir = os.path.join(args.savedir, args.pretrained_model)
-        # pretrained_ckpt_fn = sorted(
-        #     [
-        #         f
-        #         for f in os.listdir(pretrained_model_dir)
-        #         if os.path.isfile(os.path.join(pretrained_model_dir, f))
-        #         and ".pth.gz" in f
-        #     ]
-        # )
         pretrained_pth = os.path.join(pretrained_model_dir, args.load_ckpt)
         if args.cuda_available:
             pretrained_dict = torch.load(pretrained_pth)["model"]
