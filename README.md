@@ -3,7 +3,7 @@
 
 This code was built upon a pre-existing [Image to BEV deep learning model](https://github.com/avishkarsaha/translating-images-into-maps/), based on the paper [Translating Images Into Maps](https://arxiv.org/abs/2110.00966). 
 This code was written using python 3.7. and was trained on the nuScenes dataset.
-Please refer to the repository's Read Me for dependencies and datasets to install.
+Please refer to the repository's ReadMe for dependencies and datasets to install.
 
 ## Using the code
 The first step is to create a folder named "translating-images-into-maps-main" and download all files into it.
@@ -25,6 +25,150 @@ scipy
 tensorboard
 scikit-image
 cv2
+```
+
+### Main command line arguments
+
+To use the functions of this repository, the following command line arguments may need to be changed:
+
+```
+--name: name of the experiment
+--video-name: name of the video file within the video root and without extension
+--savedir: directory to save experiments to
+--val-interval: number of epochs between validation runs
+--root: 
+--video-root: absolute directory to the video input
+--nusc-version: nuscenes version (either “v1.0-mini” or “v1.0-trainval” for the full US dataset)
+--train-split: training split (either “train_mini" or “train_roddick” for the full US dataset)
+--val-split: validation split (either “val_mini" or “val_roddick” for the full US dataset)
+--data-size: percentage of dataset to train on
+--epochs: number of epochs to train for
+--batch-size: batch size
+--accumulation-steps: 
+--cuda-available: environment used (0 for cpu, 1 for cuda)
+--iou: iou metric used (0 for iou, 1 for diou)
+```
+
+### Datasets
+
+The NuScenes Mini and Full datasets can be found at the following locations:
+
+NuScene Mini: 
+- Google Drive: https://drive.google.com/drive/folders/1IZCGg1rXx8bkA2eUY1sjk9PAR64_vzHV?usp=share_link
+-  Scitas: /work/scitas-share/datasets/Vita/civil-459/Nuscenes_bev
+
+NuScenes Full US: 
+- Scitas: /work/scitas-share/datasets/Vita/civil-459/NuScenes_full/US
+
+
+As the NuScene mini and full datasets do not have the same image input format (lambda or pngs), some modifications need to be applied to the code to use on or the other.
+
+- Change <code>mini</code> argument to false to use the mini dataset as well as the args paths and splits.
+
+```python
+    data = nuScenesMaps(
+        root=args.root,
+        split=args.val_split,
+        grid_size=args.grid_size,
+        grid_res=args.grid_res,
+        classes=args.load_classes_nusc,
+        dataset_size=args.data_size,
+        desired_image_size=args.desired_image_size,
+        mini=True,
+        gt_out_size=(200, 200),
+    )
+
+    loader = DataLoader(
+        data,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=0,
+        collate_fn=src.data.collate_funcs.collate_nusc_s,
+        drop_last=True,
+        pin_memory=True
+    )
+```
+
+- Comment/Uncomment the lines 151-153 or 146-149 of the data loader.py function: 
+       
+```python
+# if mini:
+image_input_key = pickle.dumps(id,protocol=3)
+with self.images_db.begin() as txn:
+    value = txn.get(key=image_input_key)
+    image = Image.open(io.BytesIO(value)).convert(mode='RGB')
+# else:
+# original_nusenes_dir = "/work/scitas-share/datasets/Vita/civil-459/NuScenes_full/US/samples/CAM_FRONT"
+# new_cam_path = os.path.join(original_nusenes_dir, Path(cam_path).name)
+# image = Image.open(new_cam_path).convert(mode='RGB')
+```
+
+### Checkpoints
+
+The pretrained checkpoints can be found here:
+- Scitas: /work/scitas-share/datasets/Vita/civil-459/Nuscenes_bev/pretrained_models/27_04_23_11_08 
+- Google Drive: https://drive.google.com/drive/folders/1z2pZ6RM0d0gsSXmK-jGxJ9VKoXGtlB5t?usp=share_link.
+
+The checkpoints need to be kept within <code>/pretrained_models/27_04_23_11_08</code> from the root directory of this repository. Should you want to load them from another directory, please change the following arguments:
+
+```python
+--savedir="pretrained_models" # Careful, this path is relative in validation.py but global in train.py
+--name="27_04_23_11_08"
+```
+
+### Training
+
+To train on scitas, you need to launch the following script from the root directory:
+
+```
+sbatch job.script.sh
+```
+
+To train locally on cpu:
+
+```
+python3 train.py
+```
+
+Make sure to adapt the script with your command line args
+
+
+### Validation
+
+To validate a model performance on scitas:
+
+```
+sbatch job.validate.sh
+```
+
+To train locally on cpu:
+
+```
+python3 validate.py
+```
+
+Make sure to adapt the script with your command line args
+
+
+### Inference
+
+To infer on a video on scitas:
+
+```
+sbatch job.evaluate.sh
+```
+
+To train locally on cpu:
+
+```
+python3 evaluate.py
+```
+
+Make sure to adapt the script with your command line args, especially:
+```
+--batch-size // 1 for the test videos
+--video-name
+--video-root
 ```
 
 ## Project Context
@@ -105,7 +249,7 @@ As can be seen in the following image, the $DIoU$ loss function encourages a fas
 </div>
 <br />
 
-After the research phase, we implemented the $DIoU$ loss in the bbox_overlaps_diou function in the /src/utils.py file, by using the $DIoU$ formula given above. 
+After the research phase, we implemented the $DIoU$ loss in the <code>bbox_overlaps_diou</code> function in the <code>/src/utils.py</code> file, by using the $DIoU$ formula given above. 
 
 This function is then used to compute multiscale $IoU$ and $DIoU$ in the <code>compute_multiscale_iou</code> function of the same file. For each class, the $DIoU$ or $IoU$ (in function of the input argument) is calculated over the batch size. The output of the function are a dictionary <code>iou_dict</code> containing the multiscale $IoU$ and class count values for each sample and scale, and per sampel $IoU$.
 
