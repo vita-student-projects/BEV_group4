@@ -261,7 +261,7 @@ As can be seen in the following image, the $DIoU$ loss function encourages a fas
 
 After the research phase, we implemented the $DIoU$ loss in the <code>bbox_overlaps_diou</code> function in the <code>/src/utils.py</code> file, by using the $DIoU$ formula given above. 
 
-This function is then used to compute multiscale $IoU$ and $DIoU$ in the <code>compute_multiscale_iou</code> function of the same file. For each class, the $DIoU$ or $IoU$ (in function of the input argument) is calculated over the batch size. The output of the function are a dictionary <code>iou_dict</code> containing the multiscale $IoU$ and class count values for each sample and scale, and per sample $IoU$.
+This function is then used to compute multiscale $IoU$ and $DIoU$ in the <code>compute_multiscale_iou</code> function of the same file. For each class, the $DIoU$ or $IoU$ (in function of the <code>iou<code/>input argument) is calculated over the batch size. The output of the function are a dictionary <code>iou_dict</code> containing the multiscale $IoU$ and class count values for each sample and scale, and per sample $IoU$.
 
 We then used these values in <code>train.py</code>, where the $IoU$ and $DIoU$ losses were computed as an evaluation metric and used in the evaluation runs once every <code>val-interval</code> epochs. These values were also used in <code>validation.py</code> where they were used to display the losses and $IoU$s on a validation batch.
 
