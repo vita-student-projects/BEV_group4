@@ -211,7 +211,7 @@ $b_{gt}$ is the center point of the ground truth bounding box while $b$ is the c
 $\rho^2(b,b_{gt})$, or $d$ is the l2 distance between the centers of the ground truth and predicted bounding boxes.
 
 It uses l2 norm to minimize the distance between predicted and target boxes, and converges much faster than $IoU$, especially in non-overlapping cases[[1]](#1). The penalty term linked to the distance between the bounding boxes makes the algorithm less sensitive to the box size, and increases accuracy of detection of smaller objects. 
-It also considers the horizontal and vertical orientations of the box, resulting in better detection of extreme aspect ratios (see images below).
+It also considers the horizontal and vertical orientations of the box, resulting in better detection of extreme aspect ratios (see images below). In green is the predicted box, and in red the target box.
 
 <div>
 <p align="center">
