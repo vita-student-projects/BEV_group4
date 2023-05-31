@@ -66,23 +66,42 @@ D_{IoU} = 1 - IoU + {{\rho^2(b,b_{gt})} \over {c^2}}
 $\rho^2(b,b_{gt})$, or $d$ is the l2 distance between the centers of the ground truth and predicted bounding boxes.
 
 It uses l2 norm to minimize the distance between predicted and target boxes, and converges much faster than $IoU$, especially in non-overlapping cases[[1]](#1). The penalty term linked to the distance between the bounding boxes makes the algorithm less sensitive to the box size, and increases accuracy of detection of smaller objects. 
-It also considers the horizontal and vertical orientations of the box, resulting in better detection of extreme aspect ratios (see image below).
+It also considers the horizontal and vertical orientations of the box, resulting in better detection of extreme aspect ratios (see images below).
 
 <div>
 <p align="center">
-<img src="images/horizontal.jpg" width="500"></img>
+<img src="images/horizontal.png" width="800" title="Horizontal"></img>
 </p>
 </div>
 <br />
 
 <div>
 <p align="center">
-<img src="images/vertical.jpg" width="500"></img>
+<img src="images/vertical.png" width="800"></img>
 </p>
 </div>
 <br />
 
 Moreover, $DIoU$ loss introduces a regularization term that encourages smooth convergence.
+
+As can be seen in the following image, the $DIoU$ loss function encourages a fast convergence of the prediction box to the ground truth box.
+
+<div>
+<p align="center">
+<img src="images/diou_perf.png" width="800"></img>
+</p>
+</div>
+<br />
+
+After the research phase, we implemented the $DIoU$ loss in the bbox_overlaps_diou function in the /src/utils.py file, by using the $DIoU$ formula given above. 
+
+This function was then used to compute multiscale $IoU$ and $DIoU$ in the compute_multiscale_iou function of the same file:
+- For each class, the $DIoU$ is calculated over the batch size.
+
+
+
+
+
 
 ## Results
 
