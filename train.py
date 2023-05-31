@@ -14,6 +14,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as transforms
+from torchvision.transforms import ToPILImage
 from torch import optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
@@ -120,7 +121,9 @@ def train(args, dataloader, model, optimizer, epoch):
         [epoch_iou["s{}_class_count".format(scale)] for scale in scales]
     )
     ms_ious_per_class = (
-        (ms_cumsum_iou_per_class / (ms_count_per_class + 1)).cpu().numpy()
+        # (ms_cumsum_iou_per_class / (ms_count_per_class + 1)).cpu().numpy()
+    (ms_cumsum_iou_per_class.cpu() / (ms_count_per_class.cpu() + 1)).cpu().numpy()
+
     )
     ms_mean_iou = ms_ious_per_class.mean(axis=1)
 
@@ -129,7 +132,8 @@ def train(args, dataloader, model, optimizer, epoch):
         [epoch_loss_per_class["s{}_loss_per_class".format(scale)] for scale in scales]
     )
     ms_loss_per_class = (
-        (ms_cumsum_loss_per_class / (ms_count_per_class + 1)).cpu().numpy()
+        # (ms_cumsum_loss_per_class / (ms_count_per_class + 1)).cpu().numpy()
+    (ms_cumsum_loss_per_class.cpu() / (ms_count_per_class.cpu() + 1)).cpu().numpy()
     )
     total_loss = ms_loss_per_class.mean(axis=1).sum()
 
@@ -191,7 +195,10 @@ def validate(args, dataloader, model, epoch):
                 pred_ms[0], size=(200, 200), mode="bilinear"
             )
             # pred_200x200 = (pred_200x200 > 0).float()
-            pred_ms = [pred_200x200, *pred_ms]
+            if torch.cuda.is_available():
+                pred_ms = [pred_200x200, *pred_ms]
+            else: 
+                pred_ms = [pred_200x200] + pred_ms
 
             # Get required gt output sizes
             map_sizes = [pred.shape[-2:] for pred in pred_ms]
@@ -253,7 +260,8 @@ def validate(args, dataloader, model, epoch):
     )
 
     ms_ious_per_class = (
-        (ms_cumsum_iou_per_class / (ms_count_per_class + 1e-6)).cpu().numpy()
+        # (ms_cumsum_iou_per_class / (ms_count_per_class + 1e-6)).cpu().numpy()
+        (ms_cumsum_iou_per_class.cpu() / (ms_count_per_class.cpu() + 1e-6)).cpu().numpy()
     )
     ms_mean_iou = ms_ious_per_class.mean(axis=1)
 
@@ -262,7 +270,8 @@ def validate(args, dataloader, model, epoch):
         [epoch_loss_per_class["s{}_loss_per_class".format(scale)] for scale in scales]
     )
     ms_loss_per_class = (
-        (ms_cumsum_loss_per_class / (ms_count_per_class + 1)).cpu().numpy()
+        # (ms_cumsum_loss_per_class / (ms_count_per_class + 1)).cpu().numpy()
+    (ms_cumsum_loss_per_class.cpu() / (ms_count_per_class.cpu() + 1)).cpu().numpy()
     )
     total_loss = ms_loss_per_class.mean(axis=1).sum()
 
@@ -361,7 +370,8 @@ def visualize_score(scores,  heatmaps, grid, image, iou, iou_dict, num_classes, 
 
     class_names = [args.pred_classes_nusc[i] for i in range(num_classes)]
     # print("class_names :", class_names)
-    handles = [mpl.patches.Patch(color=cmap(norm(i)), label=f"({iou_dict[i]:.2f}) {class_names[i]}") for i in range(num_classes)]
+    # handles = [mpl.patches.Patch(color=cmap(norm(i)), label=f"({iou_dict[i]:.2f}) {class_names[i]}") for i in range(num_classes)]
+    handles = [mpl.patches.Patch(color=cmap(norm(i)), label="({:.2f}) {}".format(iou_dict[i], class_names[i])) for i in range(num_classes)]
     ax5.legend(handles=handles, loc='center', bbox_to_anchor=(0.5, 0.5))
 
     grid = grid.cpu().detach().numpy()
@@ -406,10 +416,9 @@ def parse_args():
     parser.add_argument(
         "--root",
         type=str,
-        default="/Users/gloriamellinand/Downloads/translating-images-into-maps-main/nuscenes_data",
+        default="/work/scitas-share/datasets/Vita/civil-459/Nuscenes_bev",
         help="root directory of the dataset",
     )
-    
     parser.add_argument(
         "--nusc-version", type=str, default="v1.0-mini", help="nuscenes version",
     )
@@ -573,7 +582,7 @@ def parse_args():
     parser.add_argument(
         "--load-ckpt",
         type=str,
-        default="checkpoint-epfl-1-0010.pth.gz",
+        default="checkpoint-008.pth.gz",
         help="name of checkpoint to load",
     )
     parser.add_argument(
@@ -677,7 +686,7 @@ def parse_args():
 
     # ------------------------- Training options ------------------------- #
     parser.add_argument(
-        "-e", "--epochs", type=int, default=600, help="number of epochs to train for"
+        "-e", "--epochs", type=int, default=40, help="number of epochs to train for"
     )
     parser.add_argument(
         "-b", "--batch-size", type=int, default=8, help="mini-batch size for training"
@@ -699,7 +708,7 @@ def parse_args():
         "-s",
         "--savedir",
         type=str,
-        default="pretrained_models",
+        default="/work/scitas-share/datasets/Vita/civil-459/Nuscenes_bev/pretrained_models",
         help="directory to save experiments to",
     )
     parser.add_argument(
@@ -717,7 +726,7 @@ def parse_args():
         "-w",
         "--workers",
         type=int,
-        default=4,
+        default=0,
         help="number of worker threads to use for data loading",
     )
     parser.add_argument(
@@ -749,6 +758,12 @@ def parse_args():
         type=int,
         default=1,
         help="defines iou metric to use (0 for iou, 1 for diou)",
+    )
+        parser.add_argument(
+        "--nuscenes-mini",
+        type=bool,
+        default=False,
+        help="defines if the mini dataset is used",
     )
     return parser.parse_args()
 
@@ -805,7 +820,7 @@ def save_checkpoint(args, epoch, model, optimizer, scheduler):
         "scheduler": scheduler.state_dict(),
     }
     ckpt_file = os.path.join(
-        args.savedir, args.name, "checkpoint-epfl-{:04d}.pth.gz".format(epoch)
+        args.root, "pretrained_models", args.name, "checkpoint-epfl-epoch-{:04d}-mini-{}-iou-{}.pth.gz".format(epoch, args.nuscenes_mini, args.iou)
     )
     print("==> Saving checkpoint '{}'".format(ckpt_file))
     torch.save(ckpt, ckpt_file)
@@ -816,7 +831,7 @@ def main():
     args = parse_args()
     # args.root = os.path.join(os.getcwd(), args.root)
     print(args.root)
-    args.savedir = os.path.join(os.getcwd(), args.savedir)
+    # args.savedir = os.path.join(os.getcwd(), args.savedir)
     print(args.savedir)
 
     # Build depth intervals along Z axis and reverse
@@ -848,7 +863,7 @@ def main():
         classes=args.load_classes_nusc,
         dataset_size=args.data_size,
         desired_image_size=args.desired_image_size,
-        mini=True,
+        mini=args.nuscenes_mini,
         gt_out_size=(100, 100),
     )
     print("loading val data")
@@ -860,7 +875,7 @@ def main():
         classes=args.load_classes_nusc,
         dataset_size=args.data_size,
         desired_image_size=args.desired_image_size,
-        mini=False,
+        mini=args.nuscenes_mini,
         gt_out_size=(200, 200),
     )
 
@@ -954,7 +969,7 @@ def main():
         [
             f
             for f in os.listdir(model_dir)
-            if os.path.isfile(os.path.join(model_dir, f)) and ".pth.gz" in f
+            if os.path.isfile(os.path.join(model_dir, f)) and args.load_ckpt in f
         ]
     )
     if len(checkpt_fn) != 0:

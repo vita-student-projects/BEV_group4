@@ -16,6 +16,7 @@ from matplotlib import pyplot as plt
 from torch import optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+from torchvision.transforms import ToPILImage
 
 import src
 import src.data.collate_funcs
@@ -37,6 +38,7 @@ def visualize_score(scores,  heatmaps, grid, image, iou, iou_dict, num_classes, 
     cls_idx = scores.clone()
     cls_idx = cls_idx.argmax(dim=0)
     cls_idx = cls_idx.numpy()
+    # print("cls_idx :", cls_idx)
     color_codes = cv2.applyColorMap(np.uint8(cls_idx * (255/num_classes)), cv2.COLORMAP_JET)
     color_codes = cv2.cvtColor(color_codes, cv2.COLOR_BGR2RGB)
 
@@ -57,7 +59,7 @@ def visualize_score(scores,  heatmaps, grid, image, iou, iou_dict, num_classes, 
     ax2 = fig.add_subplot(gs[1, 0])     # second line, first item
     ax3 = fig.add_subplot(gs[1:, 1])    # second line, second item
     ax4 = fig.add_subplot(gs[1:, 2])    # second line, third item
-    ax5 = fig.add_subplot(gs[1:, 3])    # second line, third item
+    ax5 = fig.add_subplot(gs[1:, 3])    # second line, forth item
 
     image = ax1.imshow(image)
     ax1.grid(which="both")
@@ -117,6 +119,7 @@ def validate(args, dataloader, model, epoch=0):
     epoch_iou = MetricDict()
     epoch_loss_per_class = MetricDict()
     num_classes = len(args.pred_classes_nusc)
+    iou_mean = np.zeros(num_classes)
     # print("args.pred_classes_nusc : ", args.pred_classes_nusc)
     # print("args.pred_classes_nusc[0] : ", args.pred_classes_nusc[0])
     t = time.perf_counter()
@@ -136,6 +139,8 @@ def validate(args, dataloader, model, epoch=0):
 
         with torch.no_grad():
             # Run network forwards
+            # print("IMAGE :", image.shape)
+
             pred_ms = model(image, calib, grid2d)
 
             # Upsample largest prediction to 200x200
@@ -156,7 +161,7 @@ def validate(args, dataloader, model, epoch=0):
             gt_ms = src.utils.downsample_gt(gt_s1, map_sizes)
             vis_ms = src.utils.downsample_gt(vis_mask_s1, map_sizes)
 
-            torch.set_printoptions(profile="full")
+            # torch.set_printoptions(profile="full")
             # print("pred_ms 0 0 :", pred_ms[0][0])
             # print("gt_ms 0 0 :", gt_ms[0][0])
 
@@ -216,6 +221,16 @@ def validate(args, dataloader, model, epoch=0):
                         "val_output_epoch{}_iter{}_iou_{}_from_{}.png".format(epoch, j, args.iou, args.load_ckpt),
                     )
                 )
+                for k in range (num_classes):
+                    iou_mean[k] += iou_dict['s200_iou_per_sample'][j][k]
+
+        iou_mean = iou_mean / len(image)
+        total_iou_mean = 0
+        for l in range (num_classes):
+            print(args.pred_classes_nusc[l], " = ", iou_mean[l])
+            total_iou_mean += iou_mean[l]
+        print("Overal IOU mean :", total_iou_mean/num_classes)
+            
 
     print("\n==> Validation epoch complete")
 
@@ -274,7 +289,7 @@ def parse_args():
     parser.add_argument(
         "--root",
         type=str,
-        default="/Users/gloriamellinand/Downloads/translating-images-into-maps-main/nuscenes_data",
+        default="/Users/quentin/Documents/DLAV/translating-images-into-maps-main/nuscenes_data",
         help="root directory of the dataset",
     )
     parser.add_argument(
@@ -440,7 +455,7 @@ def parse_args():
     parser.add_argument(
         "--load-ckpt",
         type=str,
-        default="checkpoint-008.pth.gz",
+        default="checkpoint-epfl-1-0010.pth.gz",
         help="name of checkpoint to load",
     )
     parser.add_argument(
@@ -723,7 +738,7 @@ def main():
         #     ]
         # )
         pretrained_pth = os.path.join(pretrained_model_dir, args.load_ckpt)
-        print("pretrained_pth", pretrained_pth)
+        # print("pretrained_pth", pretrained_pth)
         pretrained_dict = torch.load(pretrained_pth, map_location=torch.device('cpu'))["model"]
         # print("pretrained_dict : \n")
         # print(pretrained_dict)
