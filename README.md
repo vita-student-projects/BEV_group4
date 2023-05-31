@@ -128,13 +128,18 @@ This is due to the fact the model was trained on the entire nuScenes dataset, an
 As for the video input mode, 
 
 ## Project Evolution
+Although the passage from $IoU$ to $DIoU$ loss function has proven successful in better representing pedestrians and small objects with extreme aspect ratios, the accuracy should be higher if human lives are at stake. There are multiple interesting paths that could be explored to further increase the model's prediction accuracy. 
 
+One option is to implement the CIoU (Complete IoU) and train the model with this loss function. 
 <div>
 <p align="center">
 <img src="images/evol.png" width="500"></img>
 </p>
 </div>
 <br />
+
+Another option is to train on datasets that are rich in crowdy environments to have a better representation of pedestrians and bicycles. 
+
 
 ## References
 <a id="1">[1]</a> 
