@@ -50,6 +50,15 @@ To use the functions of this repository, the following command line arguments ma
 --iou: iou metric used (0 for iou, 1 for diou)
 ```
 
+As for training the model, these command line arguments can be modified:
+```
+--optimizer: optimizer for gradient descent to run during training. Default: adam
+--lr: learning rate. Default: 5e-5
+--momentum: momentum for Stochastic gradient descent. Default: 0.9
+--weight-decay: weight decay. Default: 1e-4
+--lr-decay: learning rate decay. Default: 0.99
+```
+
 ### Datasets
 
 The NuScenes Mini and Full datasets can be found at the following locations:
