@@ -70,7 +70,7 @@ NuScenes Full US:
 - Scitas: /work/scitas-share/datasets/Vita/civil-459/NuScenes_full/US
 
 
-As the NuScene mini and full datasets do not have the same image input format (lmdb or png), some modifications need to be applied to the code to use one or the other.
+As the NuScene mini and full datasets do not have the same image input format (lmdb or png), some modifications need to be applied to the code to use one or the other:
 
 - Change <code>mini</code> argument to false to use the mini dataset as well as the args paths and splits in the <code>train.py</code>, <code>validation.py</code> and <code>inference.py</code> files.
 
