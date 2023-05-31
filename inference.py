@@ -131,8 +131,6 @@ def evaluate(model, dataloader, video_path, args):
         
         # cropping to remove car dashboard in test files
         startX, startY, endX, endY = 0, 0, 1920, 600
-        # frame = frame[startY:endY, startX:endX]
-        # frame[endY:, :] = [0, 0, 0]
         print("height, width, _ :", frame.shape)
 
         image_rgb = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -146,17 +144,7 @@ def evaluate(model, dataloader, video_path, args):
 
         image_np = image.squeeze().numpy()
 
-        # # Transpose the dimensions to (height, width, channels)
-        # image_np = np.transpose(image_np, (1, 2, 0))
-
-        # # Display the image using Matplotlib
-        # plt.imshow(image_np)
-        # plt.axis('off')
-        # plt.show()
-
         with torch.no_grad():
-            # print("IMAGE :", image.shape)
-
             pred_ms = model(image, calib_copy, grid2d_copy)
 
             # Upsample the largest prediction to 200x200
@@ -172,12 +160,8 @@ def evaluate(model, dataloader, video_path, args):
                 res_100 = torch.cat((pred_ms_cpu[1],))
 
             _, predicted_classes = torch.max(pred_ms_cpu[1], dim=1)
-            # print("Class predictions per pixel :", predicted_classes)
 
             display_predictions_2(pred_ms, image_rgb, args)
-            # display_predictions_with_classes(image_rgb, predicted_classes[0], args)
-            # display_predictions_with_input(image_rgb, predicted_classes[0], args)
-            # display_predictions(image_rgb, predicted_classes[0], args)
             
             # Create new directory for images
             directory = os.path.join(args.savedir, args.name,args.video_name)
@@ -237,19 +221,12 @@ def display_predictions_2(pred_ms, image_rgb, args):
     num_classes = len(args.pred_classes_nusc)
     
     np.set_printoptions(threshold=sys.maxsize)
-    # print("cls_idx :", cls_idx)
 
     color_codes = cv2.applyColorMap(np.uint8(cls_idx * (255/num_classes)), cv2.COLORMAP_JET)
     color_codes = cv2.cvtColor(color_codes, cv2.COLOR_BGR2RGB)
-    # print("color_codes :", color_codes)
 
     score, _ = score.max(dim=0) 
 
-    # width, height = image_rgb.size
-    # print("width :", width)
-    # print("height :", height)
-    # dpi = 72
-    # fig = plt.figure(figsize=(width / dpi, height / dpi), dpi=dpi)
     fig = plt.figure(num="score", figsize=(10, 8))
     fig.clear()
     gs = mpl.gridspec.GridSpec(1, 3, figure=fig)
@@ -268,10 +245,7 @@ def display_predictions_2(pred_ms, image_rgb, args):
     norm = mpl.colors.Normalize(vmin=0, vmax=num_classes-1)
     class_names = [args.pred_classes_nusc[i] for i in range(num_classes)]
     handles = [mpl.patches.Patch(color=cmap(norm(i)), label=f"{class_names[i]}") for i in range(num_classes)]
-    # for i in range (num_classes):
-    #     print("cmap(norm(i) :", cmap(norm(i)))
     ax2.legend(handles=handles, loc='center', bbox_to_anchor=(0.5, 0.5))
-    # ax2.imshow(color_codes, origin='lower') 
     ax2.axis('off')
 
 # Original function to display the predited bev
@@ -397,16 +371,11 @@ def main():
     video_file = os.path.join(video_path, video_name + ".mp4")
 
     model = get_model(args)
-    # load_checkpoint(args, model, ckpt_epoch=ckpt_epoch)
+
     load_checkpoint(args, model, ckpt_name=args.load_ckpt)
-    # res_100 = evaluate(model, val_loader)
+
     res_100 = evaluate(model, val_loader, video_file, args)
 
-    # print("res_100 :", res_100)
-
-    # experiment_dir = Path(args.savedir) / args.name
-    # results_dir = experiment_dir / 'inference_results'
-    # results_dir.mkdir(exist_ok=True)
     torch.save(res_100, os.path.join(args.savedir, args.name, args.video_name))
 
 
