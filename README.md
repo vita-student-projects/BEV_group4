@@ -269,7 +269,7 @@ To have a preliminary idea of the training stratregy of this model, we first dec
 
 <div>
 <p align="center">
-<img src="images/Epoch_18_mini_validation_results.png" width="800"></img>
+<img src="images/Epoch_18_mini_validation_results.png" width="1000" height="100"></img>
 </p>
 </div>
 <br />
@@ -290,7 +290,7 @@ Here, the IoU metric was use to validate the models. We can note that the accura
 
 <div>
 <p align="center">
-<img src="images/Epoch_16_full_validation_results.png" width="800"></img>
+<img src="images/Epoch_16_full_validation_results.png" width="1000" height="150"></img>
 </p>
 </div>
 <br />
@@ -303,7 +303,7 @@ Now that we have a trained model, we can use it to predict the bev using any inp
 
 <div>
 <p align="center">
-<img src="images/inference_example.png" width="800"></img>
+<img src="images/inference_example.png"></img>
 </p>
 </div>
 <br />
