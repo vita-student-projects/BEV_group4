@@ -70,9 +70,15 @@ It also considers the horizontal and vertical orientations of the box, resulting
 
 <div>
 <p align="center">
-<img src="images/horizontal.png" width="800" title="Horizontal"></img>
+<img src="images/horizontal.png" width="800"></img>
 </p>
 </div>
+
+<p align="center">
+<em>
+Horizontal Stretch
+</em>
+</p>
 <br />
 
 <div>
@@ -80,6 +86,12 @@ It also considers the horizontal and vertical orientations of the box, resulting
 <img src="images/vertical.png" width="800"></img>
 </p>
 </div>
+
+<p align="center">
+<em>
+Vertical Stretch
+</em>
+</p>
 <br />
 
 Moreover, $DIoU$ loss introduces a regularization term that encourages smooth convergence.
@@ -95,8 +107,8 @@ As can be seen in the following image, the $DIoU$ loss function encourages a fas
 
 After the research phase, we implemented the $DIoU$ loss in the bbox_overlaps_diou function in the /src/utils.py file, by using the $DIoU$ formula given above. 
 
-This function was then used to compute multiscale $IoU$ and $DIoU$ in the compute_multiscale_iou function of the same file:
-- For each class, the $DIoU$ is calculated over the batch size.
+This function is then used to compute multiscale $IoU$ and $DIoU$ in the <code>compute_multiscale_iou</code> function of the same file. For each class, the $DIoU$ or $IoU$ (in function of the input argument) is calculated over the batch size. The output of the function are a dictionary <code>iou_di ct</code> containing the multiscale $IoU$ and class count values for each sample and scale, and per sampel $IoU$.
+
 
 
 
