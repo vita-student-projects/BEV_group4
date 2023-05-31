@@ -49,7 +49,15 @@ Another issue with IoU is its poor detection of extreme aspect ratios, which can
 ```math
 L_{IoU} = 1-{{|B \cap B_{gt}|} \over {|B \cup B_{gt}|}}
 ```
-The DIoU (Distance IoU) loss function solves many of these issues. 
+$L_{IoU}$ is the IoU loss.
+$B_{gt}$ is the ground truth bounding box while $B$ is the predicted bounding box.
+
+The $DIoU$ (Distance IoU) loss function solves many of these issues. 
+```math
+D_{IoU} = 1 - IoU + {{\rho^2(b,b_{gt})} \over {c^2}}
+```
+It uses l2 norm to minimize the distance between predicted and target boxes, and converges much faster than $IoU$, especially in non-overlapping cases. It also considers the horizontal and vertical orientations of the box, resulting in better detection of extreme aspect ratios (see image below).
+
 
 
 ## Results
