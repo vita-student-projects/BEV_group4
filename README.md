@@ -3,7 +3,8 @@
 
 This code was built upon a pre-existing [Image to BEV deep learning model](https://github.com/avishkarsaha/translating-images-into-maps/), based on the paper [Translating Images Into Maps](https://arxiv.org/abs/2110.00966). 
 This code was written using python 3.7. and was trained on the nuScenes dataset.
-Please refer to the repository's ReadMe for dependencies and datasets to install.
+Please refer to the [repository's ReadMe](https://github.com/avishkarsaha/translating-images-into-maps/) for dependencies and datasets to install.
+
 
 ## Using the code
 The first step is to create a folder named "translating-images-into-maps-main" and download all files into it.
@@ -61,7 +62,7 @@ NuScenes Full US:
 - Scitas: /work/scitas-share/datasets/Vita/civil-459/NuScenes_full/US
 
 
-As the NuScene mini and full datasets do not have the same image input format (lambda or pngs), some modifications need to be applied to the code to use on or the other.
+As the NuScene mini and full datasets do not have the same image input format (lmdb or pngs), some modifications need to be applied to the code to use one or the other.
 
 - Change <code>mini</code> argument to false to use the mini dataset as well as the args paths and splits in the <code>train.py</code>, <code>validation.py</code> and <code>inference.py</code> files.
 
@@ -89,7 +90,7 @@ As the NuScene mini and full datasets do not have the same image input format (l
     )
 ```
 
-- Comment/Uncomment the lines 151-153 or 146-149 of the data loader.py function: 
+- Comment/Uncomment the lines 151-153 or 146-149 of the <code>data_loader.py</code> function: 
        
 ```python
 # if mini:
@@ -187,28 +188,26 @@ More information about our research can be found on the [Drive](https://drive.go
 ## Contribution
 As the poor detection of pedestrians seemed to be the most immediate issue with the current trained model, we aimed to improve the accuracy by looking into better suited loss functions, and training the new model on the nuScenes dataset. 
 
-The model we built upon was trained using an $IoU$ loss function, which is scale-invariant and used for bounding box regression. IoU measures the overlap between the ground truth's and the model's prediction bounding boxes, without taking into account the localization accuracy. Therefore a high $IoU$ does not imply correct localization. This also induces errors for small bounding box sizes (pedestrians, bikes) as they are more difficult to localize accurately.
+The model we built upon was trained using an $IoU$ loss function, which is scale-invariant and used for bounding box regression. $IoU$ measures the overlap between the ground truth's and the model's prediction bounding boxes, without taking into account the localization accuracy. Therefore a high $IoU$ does not imply correct localization. This also induces errors for small bounding box sizes (pedestrians, bikes) as they are more difficult to localize accurately.
 
 Another issue with $IoU$ is its poor detection of extreme aspect ratios, which can be found in pedestrians (length of the box is generally much higher than width).
 ```math
 L_{IoU} = 1-{{|B \cap B_{gt}|} \over {|B \cup B_{gt}|}}
 ```
-$L_{IoU}$ is the IoU loss.
+$L_{IoU}$ is the $IoU$ loss.
 $B_{gt}$ is the ground truth bounding box while $B$ is the predicted bounding box.
 
 The $DIoU$ (Distance IoU) loss function solves many of these issues. 
 ```math
 D_{IoU} = 1 - IoU + {{\rho^2(b,b_{gt})} \over {c^2}}
 ```
-$b_{gt}$ is the center point of the ground truth bounding box while $b$ is the center point of the predicted bounding box.
-
 <div>
 <p align="center">
 <img src="images/diou.png" width="200"></img>
 </p>
 </div>
 <br />
-
+$b_{gt}$ is the center point of the ground truth bounding box while $b$ is the center point of the predicted bounding box.
 $\rho^2(b,b_{gt})$, or $d$ is the l2 distance between the centers of the ground truth and predicted bounding boxes.
 
 It uses l2 norm to minimize the distance between predicted and target boxes, and converges much faster than $IoU$, especially in non-overlapping cases[[1]](#1). The penalty term linked to the distance between the bounding boxes makes the algorithm less sensitive to the box size, and increases accuracy of detection of smaller objects. 
