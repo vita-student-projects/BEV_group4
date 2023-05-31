@@ -245,7 +245,7 @@ As can be seen in the following image, the $DIoU$ loss function encourages a fas
 
 <div>
 <p align="center">
-<img src="images/diou_perf.png" width="800"></img>
+<img src="images/diou_perf.png" width="600"></img>
 </p>
 </div>
 <br />
@@ -254,7 +254,7 @@ After the research phase, we implemented the $DIoU$ loss in the <code>bbox_overl
 
 This function is then used to compute multiscale $IoU$ and $DIoU$ in the <code>compute_multiscale_iou</code> function of the same file. For each class, the $DIoU$ or $IoU$ (in function of the input argument) is calculated over the batch size. The output of the function are a dictionary <code>iou_dict</code> containing the multiscale $IoU$ and class count values for each sample and scale, and per sample $IoU$.
 
-We then used these values in <code>train.py</code>, where the IoU and DIoU losses were computed as an evaluation metric and used in the evaluation runs once every <code>val-interval</code> epochs. These values were also used in <code>validation.py</code> where they were used to display the losses and ious on a validation batch.
+We then used these values in <code>train.py</code>, where the $IoU$ and $DIoU$ losses were computed as an evaluation metric and used in the evaluation runs once every <code>val-interval</code> epochs. These values were also used in <code>validation.py</code> where they were used to display the losses and $IoU$s on a validation batch.
 
 We trained the model on the NuScenes dataset starting with the provided checkpoint <code>checkpoint-008.pth.gz</code>, once with the $DIoU$ loss function, and another time with the standard $IoU$ loss. This was done using SCITAS, EPFL's computing facility. 
 
@@ -266,7 +266,7 @@ Lastly, we worked to implement a mode that would take <code>.mp4</code> videos a
 
 ### Training and Validation results
 
-To have a preliminary idea of the training stratregy of this model, we first decided train it on the NuScenes mini datasets. Starting from <code>checkpoint-008.pth.gz</code>, we were able to train two models diffrent in the IoU metric used (IoU for one and DIoU). The results obtained on a NuScenes mini batch after 10 epochs of training are presented in the table below
+To have a preliminary idea of the training stratregy of this model, we first decided train it on the NuScenes mini datasets. Starting from <code>checkpoint-008.pth.gz</code>, we were able to train two models different in the IoU metric used (IoU for one and DIoU). The results obtained on a NuScenes mini batch after 10 epochs of training are presented in the table below.
 
 <div>
 <p align="center">
@@ -275,7 +275,7 @@ To have a preliminary idea of the training stratregy of this model, we first dec
 </div>
 <br />
 
-After looking at these results, we observed that the pedestrian class, which we based on hypothesis on, did not present conclusive results at all. We therefore concluded that the minidaset was not sufficient for our needs and decided to move our training to the full dataset on Scitas.
+After looking at these results, we observed that the pedestrian class, which we based our hypothesis on, did not present conclusive results at all. We therefore concluded that the minidataset was not sufficient for our needs and decided to move our training to the full dataset on Scitas.
 
 After training our new models (with DIoU or IoU) from <code>checkpoint-008.pth.gz</code> for 8 new epochs, we observed promising results. With the aim of comparing the performance of these newly trained models, we performed a validation step on the mini dataset. A visualization of the result for an image of this dataset is provided below.
 
@@ -287,7 +287,7 @@ After training our new models (with DIoU or IoU) from <code>checkpoint-008.pth.g
 </div>
 <br />
 
-Here, the IoU metric was use to validate the models. We can note that the accurary of the model trained with the DIoU metric exceeds the one trained with the standard IoU. Further, the pedestrian class is better represented after using the the DIoU training, which tend to support our hypothesis that DIoU is better to classify smaller objects in the image. Nevertheless, a more complete dataset is required to truly validate this statement. A table was therefore computed based on a batch of the NuScenes mini dataset to compare both models over a series of images. The results are presented below.
+Here, the IoU metric was use to validate the models. We can note that the accurary of the model trained with the DIoU metric exceeds the one trained with the standard $IoU$. Further, the pedestrian class is better represented after using the the $DIoU$ training, which tends to support our hypothesis that $DIoU$ is better to classify smaller objects in the image. Nevertheless, a more complete dataset is required to truly validate this statement. A table was therefore computed based on a batch of the NuScenes mini dataset to compare both models over a series of images. The results are presented below.
 
 <div>
 <p align="center">
@@ -296,11 +296,11 @@ Here, the IoU metric was use to validate the models. We can note that the accura
 </div>
 <br />
 
-These results finally show a better performance of the DIoU training over the IoU one for small classes such as pedestrians, in both DIoU and IoU validation runs. The impact of the DIoU training can further be observed on the DIoU validation runs (last 2 lines of the table) as the difference between the performance of DIoU trained network and the IoU trained one is bigger than using the Iou metric for validation.
+These results finally show a better performance of the $DIoU$ training over the $IoU$ one for small classes such as pedestrians, in both DIoU and IoU validation runs. The impact of the $DIoU$ training can further be observed on the $DIoU$ validation runs (last 2 lines of the table) as the difference between the performance of $DIoU$ trained network and the $IoU$ trained one is bigger than using the $IoU$ metric for validation.
 
 ### Inference results
 
-Now that we have a trained model, we can use it to predict the bev using any input images or videos. While our ambition was to implement our method within the course's final demo, the bird's eye view maps infered were unfortunately not sufficiently performant. The figure below shows the inference result on one of the test videos provided (see https://drive.google.com/drive/folders/16xf0AF9zgWAuK6Xyr5xK85t77hM3BwAv?usp=sharing). 
+Now that we have a trained model, we can use it to predict the BEV using any input images or videos. While our ambition was to implement our method within the course's final demo, the bird's eye view maps infered were unfortunately not sufficiently performant. The figure below shows the inference result on one of the test videos provided (see https://drive.google.com/drive/folders/16xf0AF9zgWAuK6Xyr5xK85t77hM3BwAv?usp=sharing). 
 
 <div>
 <p align="center">
@@ -311,8 +311,8 @@ Now that we have a trained model, we can use it to predict the bev using any inp
 
 This lack of performance for the inference is believed to be due to the following paramaters:
 
-First, the camera calibration parameters necessary to our model had to be taken from the NuScene Mini dataset, supposing that a similar camera would be used for the images to be infered on.
-Second, the camera orientation and positioning within the car instead of in front of it was not expected. As the image had to be cropped along its width, the scaling operations performed along the width to adapt to the input format of the model may have changed the geometry of the objects to be predicted beyond the performance of the model.
+- First, the camera calibration parameters necessary to our model had to be taken from the NuScenes Mini dataset, supposing that a similar camera would be used for the images to be infered on.
+- Second, the camera orientation and positioning within the car instead of in front of it was not expected. As the image had to be cropped along its width, the scaling operations performed along the width to adapt to the input format of the model may have changed the geometry of the objects to be predicted beyond the performance of the model.
 
 
 ## Project Evolution
