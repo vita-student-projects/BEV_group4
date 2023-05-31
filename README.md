@@ -129,7 +129,12 @@ As for the video input mode,
 
 ## Project Evolution
 
-
+<div>
+<p align="center">
+<img src="images/evol.png" width="500"></img>
+</p>
+</div>
+<br />
 
 ## References
 <a id="1">[1]</a> 
