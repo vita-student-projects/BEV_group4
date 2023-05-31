@@ -440,8 +440,10 @@ class sample_polar2cart(nn.Module):
         )
 
         grid_ones = torch.ones_like(grid)
-        # grid_ones[..., 0] *= norm_scale_x.view(batch_size, -1, 1).cuda()
-        grid_ones[..., 0] *= norm_scale_x.view(batch_size, -1, 1)
+        if (torch.cuda.is_available()):
+            grid_ones[..., 0] *= norm_scale_x.view(batch_size, -1, 1).cuda()
+        else:
+            grid_ones[..., 0] *= norm_scale_x.view(batch_size, -1, 1)
 
         # Normalise grid to [-1, 1]
         norm_grid = grid / grid_ones

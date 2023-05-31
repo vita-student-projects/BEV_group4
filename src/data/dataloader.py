@@ -12,6 +12,7 @@ from torch.utils.data import DataLoader
 from PIL import Image
 import numpy as np
 from torch.utils.data import Dataset
+from torchvision.transforms import ToPILImage
 from torchvision.transforms.functional import to_tensor, to_pil_image
 import torch.nn.functional as F
 
@@ -72,10 +73,11 @@ class nuScenesMaps(Dataset):
                                  dataroot=self.root,
                                  verbose=False)
         else:
-            self.nusc = NuScenes(version="v1.0-mini", dataroot=self.root, verbose=False)
+            self.nusc = NuScenes(version="v1.0-trainval", dataroot=self.root, verbose=False)
 
         self.tokens = read_split(
             os.path.join(root, "splits", "{}.txt".format(split))
+            # os.path.join("/work/scitas-share/datasets/Vita/civil-459/Nuscenes_bev", "splits", "{}.txt".format(split))
         )
         self.gtmaps_db = lmdb.open(
             path=self.gtmaps_db_path,
@@ -84,12 +86,13 @@ class nuScenesMaps(Dataset):
             max_spare_txns=128,
             lock=False,
         )
-        self.images_db = lmdb.open(
-            path=self.images_db_path,
-            readonly=True,
-            readahead=False,
-            max_spare_txns=128,
-            lock=False,
+        if mini:
+            self.images_db = lmdb.open(
+                path=self.images_db_path,
+                readonly=True,
+                readahead=False,
+                max_spare_txns=128,
+                lock=False,
         )
 
         # Set classes
@@ -139,19 +142,26 @@ class nuScenesMaps(Dataset):
         calib = np.array(calib)
 
         # Load input images
+        # if mini:
         image_input_key = pickle.dumps(id,protocol=3)
         with self.images_db.begin() as txn:
             value = txn.get(key=image_input_key)
             image = Image.open(io.BytesIO(value)).convert(mode='RGB')
+        # else:
+        # original_nusenes_dir = "/work/scitas-share/datasets/Vita/civil-459/NuScenes_full/US/samples/CAM_FRONT"
+        # new_cam_path = os.path.join(original_nusenes_dir, Path(cam_path).name)
+        # image = Image.open(new_cam_path).convert(mode='RGB')
 
         # resize/augment images
         image, calib = self.image_calib_pad_and_crop(image, calib)
         image = to_tensor(image)
         calib = to_tensor(calib).reshape(3, 3)
 
-        # torch.set_printoptions(threshold=torch.inf)
+        torch.set_printoptions(threshold=torch.inf)
         # print("calib :", calib)
+        # print("calib size:", calib.shape)
         # print("grid2d :", self.grid2d)
+        # print("grid2d size:", self.grid2d.shape)
 
         # Load ground truth maps
         gtmaps_key = [pickle.dumps("{}___{}".format(id, cls), protocol=3) for cls in self.classes]

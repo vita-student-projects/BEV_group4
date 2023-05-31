@@ -602,6 +602,7 @@ def compute_iou(pred, labels):
 def get_boxes(pred):
 
     map_np = np.array(pred)
+    # map_np = np.array(pred.cpu())
     labeled_map = label(map_np)
     unique_labels = np.unique(labeled_map)[1:]
 
@@ -613,7 +614,6 @@ def get_boxes(pred):
         x_min = np.min(indices[1])
         x_max = np.max(indices[1])
 
-        # Append bounding box coordinates to the list
         boxes.append([x_min, y_min, x_max, y_max])
     
     boxes_tensor = torch.tensor(boxes)
@@ -814,6 +814,7 @@ def get_box_corners(segmentation_map):
 # 2 the for the 2 values center_x, center_y of the center of the boxes
 
 def get_box_centers(boxes):
+    
     # Extract box coordinates
     x_min = boxes[:, 0]
     y_min = boxes[:, 1]
@@ -824,7 +825,6 @@ def get_box_centers(boxes):
     center_x = (x_min + x_max) / 2
     center_y = (y_min + y_max) / 2
 
-    # Stack center coordinates
     centers = torch.stack((center_x, center_y), dim=1)
 
     return centers
@@ -925,8 +925,6 @@ def compute_multiscale_iou(preds, labels, visible_masks, num_classes, iou = 1, t
         elif (iou == 0): # using standard iou metric
             # Calc IoU per class
 
-            print("IOU = 0")
-
             intersection = pred * label
             union = pred + label
 
@@ -960,6 +958,10 @@ def compute_multiscale_iou(preds, labels, visible_masks, num_classes, iou = 1, t
     ]
     vals_ms = sum(vals_ms, [])
     iou_dict = {k: v for k, v in zip(keys_ms, vals_ms)}
+
+    if torch.cuda.is_available():
+        for i in range(len(multiscale_iou_per_class)):
+            multiscale_iou_per_class[i] = multiscale_iou_per_class[i].to("cuda")
 
     iou_per_sample = multiscale_iou_per_class[0] / (multiscale_class_count[0] + 1e-5)
     iou_per_sample = torch.sum(iou_per_sample, dim=1) / num_classes
