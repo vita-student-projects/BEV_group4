@@ -45,7 +45,6 @@ To use the functions of this repository, the following command line arguments ma
 --data-size: percentage of dataset to train on
 --epochs: number of epochs to train for
 --batch-size: batch size
---accumulation-steps: 
 --cuda-available: environment used (0 for cpu, 1 for cuda)
 --iou: iou metric used (0 for iou, 1 for diou)
 ```
