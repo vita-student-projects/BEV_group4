@@ -65,9 +65,24 @@ D_{IoU} = 1 - IoU + {{\rho^2(b,b_{gt})} \over {c^2}}
 
 $\rho^2(b,b_{gt})$, or $d$ is the l2 distance between the centers of the ground truth and predicted bounding boxes.
 
-It uses l2 norm to minimize the distance between predicted and target boxes, and converges much faster than $IoU$, especially in non-overlapping cases[[1]](#1). It also considers the horizontal and vertical orientations of the box, resulting in better detection of extreme aspect ratios (see image below).
+It uses l2 norm to minimize the distance between predicted and target boxes, and converges much faster than $IoU$, especially in non-overlapping cases[[1]](#1). The penalty term linked to the distance between the bounding boxes makes the algorithm less sensitive to the box size, and increases accuracy of detection of smaller objects. 
+It also considers the horizontal and vertical orientations of the box, resulting in better detection of extreme aspect ratios (see image below).
 
+<div>
+<p align="center">
+<img src="images/horizontal.jpg" width="500"></img>
+</p>
+</div>
+<br />
 
+<div>
+<p align="center">
+<img src="images/vertical.jpg" width="500"></img>
+</p>
+</div>
+<br />
+
+Moreover, $DIoU$ loss introduces a regularization term that encourages smooth convergence.
 
 ## Results
 
