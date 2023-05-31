@@ -1,17 +1,23 @@
 # From Monocular Camera Image to BEV - Improving Pedestrians Detection
 #### Quentin Delfosse, Gloria Mellinand
-<div>
-<img src="images/image_to_bev_motivation.gif"></img>
-</div>
-<br />
 
-This code was built upon a pre-existing [Image to BEV deep learning model](https://github.com/avishkarsaha/translating-images-into-maps/), based on the paper [Translating Images Into Maps](https://arxiv.org/abs/2110.00966)
+This code was built upon a pre-existing [Image to BEV deep learning model](https://github.com/avishkarsaha/translating-images-into-maps/), based on the paper [Translating Images Into Maps](https://arxiv.org/abs/2110.00966). 
+This code was written using python 3.7. and was trained on the nuScenes dataset.
+Please refer to the repository's Read Me for dependencies and datasets to install.
 
-## Environment Setup
+## Using the code
+Due to large file size, the latest checkpoint of our training and the mini nuScenes dataset used for validation can be downloaded [from this Google Drive](https://drive.google.com/drive/folders/0ALp6UvHAP1hAUk9PVA). These folders should be added in the 
+
+```
+cd translating-images-into-maps
+mkdir nuscenes_data
+```
+
+## Project Context
 
 Clone this repo: `git clone git@github.com:deepakduggirala/translating-images-into-maps.git`
 
-### Local environment
+### Contribution
 
 Create a conda environment with python 3 and install dependencies
 
