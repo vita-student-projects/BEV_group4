@@ -56,6 +56,12 @@ The $DIoU$ (Distance IoU) loss function solves many of these issues.
 ```math
 D_{IoU} = 1 - IoU + {{\rho^2(b,b_{gt})} \over {c^2}}
 ```
+<div>
+<img src="images/1_evaluation.png"></img>
+</div>
+<br />
+
+$\rho^2(b,b_{gt})$, or $d$ is the l2 distance between the centers of the ground truth and predicted bounding boxes.
 It uses l2 norm to minimize the distance between predicted and target boxes, and converges much faster than $IoU$, especially in non-overlapping cases. It also considers the horizontal and vertical orientations of the box, resulting in better detection of extreme aspect ratios (see image below).
 
 
