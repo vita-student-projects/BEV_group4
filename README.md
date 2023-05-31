@@ -63,7 +63,7 @@ NuScenes Full US:
 
 As the NuScene mini and full datasets do not have the same image input format (lambda or pngs), some modifications need to be applied to the code to use on or the other.
 
-- Change <code>mini</code> argument to false to use the mini dataset as well as the args paths and splits.
+- Change <code>mini</code> argument to false to use the mini dataset as well as the args paths and splits in the <code>train.py</code>, <code>validation.py</code> and <code>evaluation.py</code> files.
 
 ```python
     data = nuScenesMaps(
@@ -253,7 +253,7 @@ After the research phase, we implemented the $DIoU$ loss in the <code>bbox_overl
 
 This function is then used to compute multiscale $IoU$ and $DIoU$ in the <code>compute_multiscale_iou</code> function of the same file. For each class, the $DIoU$ or $IoU$ (in function of the input argument) is calculated over the batch size. The output of the function are a dictionary <code>iou_dict</code> containing the multiscale $IoU$ and class count values for each sample and scale, and per sampel $IoU$.
 
-We then used these values in <code>train.py</code>, where the IoU and DIoU losses were computed as an evaluation metric, and in <code>validation.py</code> where they were used to validate the run once every epoch.
+We then used these values in <code>train.py</code>, where the IoU and DIoU losses were computed as an evaluation metric and used in the evaluation runs once every <code>val-interval</code> epochs. These values were also used in <code>validation.py</code> where they were used to display the losses and ious on a validation batch.
 
 We trained the model on the NuScenes dataset starting with the provided checkpoint <code>checkpoint-008.pth.gz</code>, once with the $DIoU$ loss function, and another time with the standard $IoU$ loss. This was done using SCITAS, EPFL's computing facility. 
 
