@@ -279,7 +279,7 @@ To have a preliminary idea of the training stratregy of this model, we first dec
 
 <div>
 <p align="center">
-<img src="images/Epoch_18_mini_validation_results.png" width="1000" height="100"></img>
+<img src="images/Epoch_18_mini_validation_results.png" width="1000"></img>
 </p>
 </div>
 <br />
@@ -300,7 +300,7 @@ Here, the IoU metric was use to validate the models. We can note that the accura
 
 <div>
 <p align="center">
-<img src="images/Epoch_16_full_validation_results.png" width="1000" height="150"></img>
+<img src="images/Epoch_16_full_validation_results.png" width="1000"></img>
 </p>
 </div>
 <br />
