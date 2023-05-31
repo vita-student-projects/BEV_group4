@@ -200,6 +200,8 @@ The $DIoU$ (Distance IoU) loss function solves many of these issues.
 ```math
 D_{IoU} = 1 - IoU + {{\rho^2(b,b_{gt})} \over {c^2}}
 ```
+$b_{gt}$ is the center point of the ground truth bounding box while $b$ is the center point of the predicted bounding box.
+
 <div>
 <p align="center">
 <img src="images/diou.png" width="200"></img>
@@ -319,11 +321,23 @@ Although the passage from $IoU$ to $DIoU$ loss function has proven successful in
 
 One option is to implement $CIoU$ (Complete IoU) and train the model with this loss function. 
 ```math
-C_{IoU} = 1- IoU + {{\rho^2(b,b_{gt})} \over {c^2}} + \alpha V
+C_{IoU} = 1- IoU + {{\rho^2(b,b_{gt})} \over {c^2}} + \alpha V \arctan(\frac{w_{gt}}{h_{gt}})
 ```
+```math
+V = \frac{4}{\pi^2}(\arctan(\frac{w_{gt}}{h_{gt}}) - \arctan(\frac{w}{h}))^2
+```
+```math
+\alpha = 0 \text{ if IoU } < 0.5 
+```
+```math
+\alpha = {V \over V+(1-IoU)} \text{ if IoU } \ge 0.5
+```
+$w_{gt}$ and $w$ are the widths of the ground truth and prediction bounding boxes.
+$h_{gt}$ and $h$ are the heights of the ground truth and prediction bounding boxes.
+
 The CIoU is based on the DIoU and takes 3 geometric factors into account: Overlapping area (present in IoU and DIoU), distance (present in DIoU) and aspect ratio. Compared to DIoU, the additional penalty term for aspect ratio similarity between ground truth and predicted bounding boxes encourages similar proportions, thus helping in the accurate detection of small objects and extreme aspect ratios.
 
-Furthermore, according to research done by this paper, regression error for CIoU degrades faster than the rest, and will converge to DIoU loss. 
+Furthermore, according to research done by this paper [[2]](#2), regression error for CIoU degrades faster than the rest, and will converge to DIoU loss. 
 
 <div>
 <p align="center">
@@ -342,3 +356,7 @@ Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, Dongwei Ren (2020).
 Distance-IoU Loss: Faster and Better Learning for Bounding Box Regression
 https://arxiv.org/pdf/1911.08287.pdf
 
+<a id="2">[2]</a> 
+Zhaohui Zheng, Ping Wang, Dongwei Ren, Wei Liu, Rongguang Ye, Qinghua Hu, Wangmeng Zuo (2021). 
+Enhancing Geometric Factors in Model Learning and Inference for Object Detection and Instance Segmentation
+https://arxiv.org/pdf/2005.03572.pdf
