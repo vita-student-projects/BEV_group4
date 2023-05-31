@@ -38,7 +38,6 @@ def visualize_score(scores,  heatmaps, grid, image, iou, iou_dict, num_classes, 
     cls_idx = scores.clone()
     cls_idx = cls_idx.argmax(dim=0)
     cls_idx = cls_idx.numpy()
-    # print("cls_idx :", cls_idx)
     color_codes = cv2.applyColorMap(np.uint8(cls_idx * (255/num_classes)), cv2.COLORMAP_JET)
     color_codes = cv2.cvtColor(color_codes, cv2.COLOR_BGR2RGB)
 
@@ -70,11 +69,8 @@ def visualize_score(scores,  heatmaps, grid, image, iou, iou_dict, num_classes, 
     ax5.axis('off')
     cmap = mpl.cm.jet
     norm = mpl.colors.Normalize(vmin=0, vmax=num_classes-1)
-    # cb = mpl.colorbar.ColorbarBase(ax5, cmap=cmap, norm=norm, orientation='vertical')
-    # cb.set_label('Class Color Code')
 
     class_names = [args.pred_classes_nusc[i] for i in range(num_classes)]
-    # print("class_names :", class_names)
     handles = [mpl.patches.Patch(color=cmap(norm(i)), label=f"({iou_dict[i]:.2f}) {class_names[i]}") for i in range(num_classes)]
     ax5.legend(handles=handles, loc='center', bbox_to_anchor=(0.5, 0.5))
 
@@ -120,8 +116,6 @@ def validate(args, dataloader, model, epoch=0):
     epoch_loss_per_class = MetricDict()
     num_classes = len(args.pred_classes_nusc)
     iou_mean = np.zeros(num_classes)
-    # print("args.pred_classes_nusc : ", args.pred_classes_nusc)
-    # print("args.pred_classes_nusc[0] : ", args.pred_classes_nusc[0])
     t = time.perf_counter()
 
     for i, ((image, calib, grid2d), (cls_map, vis_mask)) in enumerate(dataloader):
@@ -134,13 +128,9 @@ def validate(args, dataloader, model, epoch=0):
                 vis_mask.cuda(),
                 grid2d.cuda(),
             )
-        # print("i : ", i)
-        # print("len(image) : ", len(image))
 
         with torch.no_grad():
             # Run network forwards
-            # print("IMAGE :", image.shape)
-
             pred_ms = model(image, calib, grid2d)
 
             # Upsample largest prediction to 200x200
@@ -161,19 +151,11 @@ def validate(args, dataloader, model, epoch=0):
             gt_ms = src.utils.downsample_gt(gt_s1, map_sizes)
             vis_ms = src.utils.downsample_gt(vis_mask_s1, map_sizes)
 
-            # torch.set_printoptions(profile="full")
-            # print("pred_ms 0 0 :", pred_ms[0][0])
-            # print("gt_ms 0 0 :", gt_ms[0][0])
-
             # Compute IoU or dIoU (based on diou variable)
             iou_per_sample, iou_dict = src.utils.compute_multiscale_iou(
                 pred_ms, gt_ms, vis_ms, num_classes, args.iou
             )
 
-            # print("iou_dict", iou_dict)
-            # print("len(s200_iou_per_sample:", len(iou_dict['s200_iou_per_sample']))
-            # print("s200_iou_per_sample:", iou_dict['s200_iou_per_sample'])
-            
             # Compute per class loss for eval
             per_class_loss_dict = src.utils.compute_multiscale_loss_per_class(
                 pred_ms, gt_ms,
@@ -196,9 +178,7 @@ def validate(args, dataloader, model, epoch=0):
             t = time.perf_counter()
 
             for j in range (0, len(image)):
-                # print("j :", j)
                 # Visualize predictions
-                # if epoch % args.val_interval * 4 == 0 and i % 50 == 0:
                 vis_img = transforms.ToPILImage()(image[j].detach().cpu())
                 pred_vis = pred_ms[1].detach().cpu()
                 label_vis = gt_ms[1]
@@ -672,8 +652,6 @@ def main():
     init(args)
 
     # Create experiment
-    # summary = _make_experiment(args)
-
     print("loading val data")
     val_data = nuScenesMaps(
         root=args.root,
@@ -687,10 +665,6 @@ def main():
         gt_out_size=(200, 200),
     )
 
-    # print("val_data : \n")
-    # print(val_data)
-    # print("\n")
-
     val_loader = DataLoader(
         val_data,
         batch_size=args.batch_size,
@@ -700,10 +674,6 @@ def main():
         drop_last=True,
         pin_memory=True
     )
-
-    # print("val_loader : \n")
-    # print(val_loader)
-    # print("\n")
 
     # Build model
     model = networks.__dict__[args.model_name](
@@ -722,32 +692,10 @@ def main():
         n_dec_layers=args.n_dec_layers,
     )
 
-    # print("model", model)
-    # print("\n")
-
     if args.pretrained_bem:
-        pretrained_model_dir = os.path.join(args.savedir, args.pretrained_model)
-        # print("pretrained_model_dir", pretrained_model_dir)
-        # print("\n")
-        # pretrained_ckpt_fn = sorted(
-        #     [
-        #         f
-        #         for f in os.listdir(pretrained_model_dir)
-        #         if os.path.isfile(os.path.join(pretrained_model_dir, f))
-        #         and ".pth.gz" in f
-        #     ]
-        # )
         pretrained_pth = os.path.join(pretrained_model_dir, args.load_ckpt)
-        # print("pretrained_pth", pretrained_pth)
         pretrained_dict = torch.load(pretrained_pth, map_location=torch.device('cpu'))["model"]
-        # print("pretrained_dict : \n")
-        # print(pretrained_dict)
-
         mod_dict = OrderedDict()
-
-        # print("mod_dict : \n")
-        # print(mod_dict)
-
         # # Remove "module" from name
         for k, v in pretrained_dict.items():
             if any(module in k for module in args.ignore):
@@ -778,7 +726,6 @@ def main():
 
     # Check if saved model checkpoint exists
     model_dir = os.path.join(args.savedir, args.name)
-    # print("model_dir :", model_dir)
     checkpt_fn = sorted(
         [
             f
@@ -788,9 +735,7 @@ def main():
     )
     if len(checkpt_fn) != 0:
         model_pth = os.path.join(model_dir, checkpt_fn[-1])
-        # print("model_pth :", model_pth)
         ckpt = torch.load(model_pth, map_location=torch.device('cpu'))
-        # print()
         model.load_state_dict(ckpt["model"])
         optimizer.load_state_dict(ckpt["optim"])
         scheduler.load_state_dict(ckpt["scheduler"])
