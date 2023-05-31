@@ -107,17 +107,29 @@ As can be seen in the following image, the $DIoU$ loss function encourages a fas
 
 After the research phase, we implemented the $DIoU$ loss in the bbox_overlaps_diou function in the /src/utils.py file, by using the $DIoU$ formula given above. 
 
-This function is then used to compute multiscale $IoU$ and $DIoU$ in the <code>compute_multiscale_iou</code> function of the same file. For each class, the $DIoU$ or $IoU$ (in function of the input argument) is calculated over the batch size. The output of the function are a dictionary <code>iou_di ct</code> containing the multiscale $IoU$ and class count values for each sample and scale, and per sampel $IoU$.
+This function is then used to compute multiscale $IoU$ and $DIoU$ in the <code>compute_multiscale_iou</code> function of the same file. For each class, the $DIoU$ or $IoU$ (in function of the input argument) is calculated over the batch size. The output of the function are a dictionary <code>iou_dict</code> containing the multiscale $IoU$ and class count values for each sample and scale, and per sampel $IoU$.
 
+We then used these values in <code>train.py</code>, where the IoU and DIoU losses were computed as an evaluation metric, and in <code>validation.py</code> where they were used to validate the run once every epoch.
 
+We trained the model on the NuScenes dataset starting with the provided checkpoint <code>checkpoint-008.pth.gz</code>, once with the $DIoU$ loss function, and another time with the standard $IoU$ loss. This was done using SCITAS, EPFL's computing facility. 
 
+Another contribution is the new format of visualization to distinguish classes better with all corresponding labels and IoU values. This was implemented in the <code>visualization.py</code> file.
 
-
-
+Lastly, we worked to implement a mode that would take <code>.mp4</code> videos as input and would decompose them into individual image frames. These would then be evaluated by the model and we could visualize the segmentation result in the <code>inference.py</code> file. 
 
 ## Results
 
+We have observed positive results after training the new model: The accuracy of the model was increased ........
+
+
+This is due to the fact the model was trained on the entire nuScenes dataset, and the improved DIoU 
+
+
+As for the video input mode, 
+
 ## Project Evolution
+
+
 
 ## References
 <a id="1">[1]</a> 
