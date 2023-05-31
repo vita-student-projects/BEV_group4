@@ -1,9 +1,11 @@
 # From Monocular Camera Image to BEV - Improving Pedestrians Detection
-
+#### Quentin Delfosse, Gloria Mellinand
 <div>
 <img src="images/image_to_bev_motivation.gif"></img>
 </div>
 <br />
+
+This code was built upon a pre-existing [Image to BEV deep learning model](https://github.com/avishkarsaha/translating-images-into-maps/), based on the paper [Translating Images Into Maps](https://arxiv.org/abs/2110.00966)
 
 ## Environment Setup
 
