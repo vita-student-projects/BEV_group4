@@ -16,7 +16,6 @@ from scipy.spatial.distance import cdist
 
 import src
 from src.model.loss import dice_loss_per_class, dice_loss_per_class_infer
-# from src.util.box_ops import box_cxcywh_to_xyxy
 
 ObjectDataBEV = namedtuple(
     "ObjectData",
@@ -113,19 +112,12 @@ def mask_to_objpos(mask, skip_classes=4):
             print("    Batch: {}, {}".format(batch_idx, batch.shape))
             for cls_idx, cls in enumerate(batch):
                 print("        Class: {}, {}".format(cls_idx, cls.shape))
-                # read image
-                # img = cv2.imread('two_blobs.jpg')
-
-                # convert to grayscale
-                # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
                 # threshold
                 cls = (cls * 255).cpu().numpy().astype(np.uint8)
                 print("        {}".format(cls.mean()))
                 thresh = cv2.threshold(cls, 128, 255, cv2.THRESH_BINARY)[1]
 
-                # get contours
-                # result = img.copy()
                 contours = cv2.findContours(
                     thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
                 )
@@ -133,8 +125,6 @@ def mask_to_objpos(mask, skip_classes=4):
                 pos = []
                 for cntr in contours:
                     x, y, w, h = cv2.boundingRect(cntr)
-                    # cv2.rectangle(result, (x, y), (x + w, y + h), (0, 0, 255), 2)
-                    # print(x, y, w, h)
                     pos.append(np.array([x, y, h, w]))
                     plt.imshow(cls)
                     plt.title("{},{},{},{}".format(x, y, w, h))
@@ -205,21 +195,6 @@ def datasets_comparisons(dataloaders):
             gt_maps = gt_maps.cuda()
             gt_s1 = (gt_maps > 0).float()
             gt.append(gt_s1)
-            # gt_ms = downsample_gt(gt_s1, map_sizes)
-
-            # Visualise
-            # gt_ms = downsample_gt(gt_maps, map_sizes)
-            # vis_ms = downsample_gt(vis_mask, map_sizes)
-            # gt_map = gt_ms[0][0] * vis_ms[0][0]
-            #
-            # class_idx = torch.arange(len(gt_map)) + 1
-            # gt_vis = gt_map * class_idx.view(-1, 1, 1)
-            # gt_vis, _ = gt_vis.max(dim=0)
-            # plt.imshow(gt_vis, vmin=0, vmax=12, cmap="magma")
-            # plt.title(titles[idx])
-            # plt.show()
-            #
-            # print("wait")
 
         gt0_v_gt1 = (gt[0] != gt[1]).sum(dim=-1).sum(dim=-1).sum(dim=0)
         counter += 1
@@ -233,9 +208,6 @@ def datasets_comparisons(dataloaders):
 
 def project_bev2img(grid2d, calib):
     g = make_grid3d([50, 50], [-25, 1, 1], 1.0).cuda()
-
-    # Convert grid from 2d to 3d
-    # grid = grid2d.reshape(-1, 2).T   # reshape from [X, Z, 2] to [2, X * Z]
 
     print(g[0].max(), g[0].min(), g[2].max(), g[2].min())
 
@@ -545,13 +517,6 @@ def dataloader_token_indices(dataloader, class_idxs):
         if gt[:, :, pixel_dist:].sum() > 0:
             # Make sure nothing under 35m
             if gt[:, :, :pixel_dist].sum() == 0:
-                # plt.imshow(image[0].permute(1,2,0))
-                # plt.grid()
-                # plt.show()
-                #
-                # plt.imshow(gt[0,0].cpu())
-                # plt.show()
-
                 # Add token at index
                 with open(file, "a") as f:
                     f.write("\n")
@@ -721,21 +686,6 @@ def bbox_overlaps_diou(bboxes1, bboxes2):
     if ((bboxes1.shape[0] > 0) & (bboxes2.shape[0] > 0)):
         
         bboxes1 = reorganize_predicted_boxes(bboxes1, bboxes2)
-        
-        # print("pred_boxes.shape :", bboxes1.shape)
-        # print("pred_boxes :", bboxes1)
-        # print("pred_boxes[0] :", bboxes1[0])
-        # print("label_boxes.shape :", bboxes2.shape)
-        # print("labels_boxes :", bboxes2)
-        # print("bboxes1.shape[0] :", bboxes1.shape[0])
-
-        # while (bboxes1.shape[0] < bboxes2.shape[0]):
-        #     bboxes1 = torch.cat((bboxes1, torch.tensor([[0,0,0,0]])))
-        # while (bboxes1.shape[0] > bboxes2.shape[0]):
-        #     bboxes1 = bboxes1[:,:-1]
-        
-        # print("bboxes1_cat :", bboxes1)
-
         rows = bboxes1.shape[0]
         cols = bboxes2.shape[0]
         dious = torch.zeros((rows, cols))
@@ -772,15 +722,11 @@ def bbox_overlaps_diou(bboxes1, bboxes2):
         union = area1+area2-inter_area
         dious = inter_area / (union + 1e-5) - (inter_diag) / (outer_diag + 1e-5)
         dious = torch.clamp(dious,min=-1.0,max = 1.0)
-        # print("dious.shape :", dious.shape)
-        # print("dious :", dious)
         dious[dious<0] = 0
-        # print("dious :", dious)
         if exchange:
             dious = dious.T
 
         class_dious = dious.mean()
-        # print("class_dious :", class_dious)
     else:
         class_dious = torch.zeros((1))
     return class_dious
@@ -889,8 +835,6 @@ def compute_multiscale_iou(preds, labels, visible_masks, num_classes, iou = 1, t
     multiscale_class_count = []
     
     for pred, label, mask in zip(preds, labels, visible_masks):
-        # print("pred.shape : ", pred.shape)
-        # print("label.shape : ", label.shape)
 
         assert pred.shape == label.shape
         assert len(pred.shape) == len(mask.shape)
