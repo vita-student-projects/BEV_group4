@@ -31,19 +31,30 @@ cv2
 This project was made in the context of the Deep Learning for Autonomous Vehicules course CIVIL-459, taught by Professor Alexandre Alahi at EPFL. We were supervised by doctoral student Yuejiang Liu. 
 The main goal of the course's project is to develop a deep learning model that can be used onboard a Tesla autopilot system. As for our group, we have been looking into the transformation from monocular camera images to bird's eye view. This can be done by using semantic segmentation to classify elements such as cars, sidewalk, pedestrians and the horizon. 
 
-During our research on Monocular images to BEV deep learning models, we have noticed that information concerning pedestrians was lost during segmentation, resulting in poor classification. More information about our research can be found on the [Drive](https://drive.google.com/drive/folders/0ALp6UvHAP1hAUk9PVA). As seen on the image below, 
-
+During our research on Monocular images to BEV deep learning models, we have noticed that information concerning pedestrians was lost during segmentation, resulting in poor classification. As seen on the image below, when evaluated, the model we selected reaches a mean of 25.7% IoU (Intersection over Union) over 14 classes of objects on the nuScenes dataset. The prediction accuracy for drivables is good (74.5%), quite poor for bikes, barriers and trailers. 
+However the prediction accuracy for pedestrians (9.5%) is far too low. Such a low accuracy could cause accidents if someone were to cross the road without being on the crossing. 
 <div>
-<img src="1_evaluation.png"></img>
+<img src="images/1_evaluation.png"></img>
 </div>
 <br />
 
+More information about our research can be found on the [Drive](https://drive.google.com/drive/folders/0ALp6UvHAP1hAUk9PVA).
 
-### Contribution
+## Contribution
+As the poor detection of pedestrians seemed to be the most immediate issue with the current trained model, we aimed to improve the accuracy by looking into better suited loss functions, and training the new model on the nuScenes dataset. 
+
+The model we built upon was trained using an IoU loss function, which is scale-invariant and used for bounding box regression. IoU measures the overlap between the ground truth's and the model's prediction bounding boxes, without taking into account the localization accuracy. Therefore a high IoU does not imply correct localization. This also induces errors for small bounding box sizes (pedestrians, bikes) as they are more difficult to localize accurately.
+
+Another issue with IoU is its poor detection of extreme aspect ratios, which can be found in pedestrians (length of the box is generally much higher than width).
+```math
+L_{IoU} = 1-{{|B \cap B_{gt}|} \over {|B \cup B_{gt}|}}
+```
+The DIoU (Distance IoU) loss function solves many of these issues. 
 
 
+## Results
 
-
+## Project Evolution
 
 ## References
 <a id="1">[1]</a> 
