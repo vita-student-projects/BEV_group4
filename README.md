@@ -161,7 +161,7 @@ sbatch job.evaluate.sh
 To train locally on cpu:
 
 ```
-python3 evaluate.py
+python3 inference.py
 ```
 
 Make sure to adapt the script with your command line args, especially:
@@ -251,7 +251,7 @@ As can be seen in the following image, the $DIoU$ loss function encourages a fas
 
 After the research phase, we implemented the $DIoU$ loss in the <code>bbox_overlaps_diou</code> function in the <code>/src/utils.py</code> file, by using the $DIoU$ formula given above. 
 
-This function is then used to compute multiscale $IoU$ and $DIoU$ in the <code>compute_multiscale_iou</code> function of the same file. For each class, the $DIoU$ or $IoU$ (in function of the input argument) is calculated over the batch size. The output of the function are a dictionary <code>iou_dict</code> containing the multiscale $IoU$ and class count values for each sample and scale, and per sampel $IoU$.
+This function is then used to compute multiscale $IoU$ and $DIoU$ in the <code>compute_multiscale_iou</code> function of the same file. For each class, the $DIoU$ or $IoU$ (in function of the input argument) is calculated over the batch size. The output of the function are a dictionary <code>iou_dict</code> containing the multiscale $IoU$ and class count values for each sample and scale, and per sample $IoU$.
 
 We then used these values in <code>train.py</code>, where the IoU and DIoU losses were computed as an evaluation metric and used in the evaluation runs once every <code>val-interval</code> epochs. These values were also used in <code>validation.py</code> where they were used to display the losses and ious on a validation batch.
 
@@ -263,13 +263,32 @@ Lastly, we worked to implement a mode that would take <code>.mp4</code> videos a
 
 ## Results
 
-We have observed positive results after training the new model: The accuracy of the model was increased ........
+### Training and Validation results
+
+To have a preliminary idea of the training stratregy of this model, we first decided train it on the NuScenes mini datasets. Starting from <code>checkpoint-008.pth.gz</code>, we were able to train two models diffrent in the IoU metric used (IoU for one and DIoU). The results obtained on a NuScenes mini batch after 10 epochs of training are presented in the table below
+
+...
+
+After looking at these results, we observed that the pedestrian class, which we based on hypothesis on, did not present conclusive results at all. We therefore concluded that the minidaset was not sufficient for our needs and decided to move our training to the full dataset on Scitas.
+
+After training our new models (with DIoU or IoU) from <code>checkpoint-008.pth.gz</code> for 8 new epochs, we observed promising results. With the aim of comparing the performance of these newly trained models, we performed a validation step on the mini dataset. A visualization of the result for an image of this dataset is provided below.
 
 
-This is due to the fact the model was trained on the entire nuScenes dataset, and the improved DIoU 
+...
 
 
-As for the video input mode, 
+
+Here, the IoU metric was use to validate the models. We can note that the accurary of the model trained with the DIoU metric exceeds the one trained with the standard IoU. Further, the pedestrian class is better represented after using the the DIoU training, which tend to support our hypothesis that DIoU is better to classify smaller objects in the image. Nevertheless, a more complete dataset is required to truly validate this statement. A table was therefore computed based on a batch of the NuScenes mini dataset to compare both models over a series of images. The results are presented below.
+
+
+...
+
+### Inference results
+
+Now that we have a trained model, we can use it to predict the bev using any input images or videos. While our ambition was to implement our method within the course final demo, a few parameters were missing to provide a performant inference.
+
+
+
 
 ## Project Evolution
 Although the passage from $IoU$ to $DIoU$ loss function has proven successful in better representing pedestrians and small objects with extreme aspect ratios, the accuracy should be higher if human lives are at stake. There are multiple interesting paths that could be explored to further increase the model's prediction accuracy. 
